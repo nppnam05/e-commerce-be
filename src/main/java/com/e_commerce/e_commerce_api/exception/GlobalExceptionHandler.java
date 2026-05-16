@@ -58,6 +58,13 @@ public class GlobalExceptionHandler {
                                 .body(ApiResponse.error(ex.getMessage(), 400, null));
         }
 
+        @ExceptionHandler(UnauthorizedException.class)
+        public ResponseEntity<ApiResponse<Void>> handleUnauthorized(UnauthorizedException ex) {
+                return ResponseEntity
+                                .status(HttpStatus.UNAUTHORIZED)
+                                .body(ApiResponse.error(ex.getMessage(), 401, null));
+        }
+
         // Còn lại
         @ExceptionHandler(Exception.class)
         public ResponseEntity<ApiResponse<Void>> handleGeneral(Exception ex) {

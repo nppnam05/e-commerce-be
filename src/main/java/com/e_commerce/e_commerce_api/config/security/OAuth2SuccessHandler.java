@@ -1,0 +1,108 @@
+package com.e_commerce.e_commerce_api.config.security;
+
+import java.io.IOException;
+import java.util.Optional;
+
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.oauth2.core.user.OAuth2User;
+import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
+import org.springframework.stereotype.Component;
+
+import com.e_commerce.e_commerce_api.constant.NameTypeToken;
+import com.e_commerce.e_commerce_api.constant.TypeJwt;
+import com.e_commerce.e_commerce_api.entity.Role;
+import com.e_commerce.e_commerce_api.entity.User;
+import com.e_commerce.e_commerce_api.entity.UserSession;
+import com.e_commerce.e_commerce_api.repository.RoleRepository;
+import com.e_commerce.e_commerce_api.repository.UserRepository;
+import com.e_commerce.e_commerce_api.repository.UserSessionRepository;
+import com.e_commerce.e_commerce_api.service.JwtService;
+import com.e_commerce.e_commerce_api.utils.CookieUtils;
+import com.e_commerce.e_commerce_api.utils.DateTimeUtils;
+
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import lombok.RequiredArgsConstructor;
+
+@Component
+@RequiredArgsConstructor
+public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
+
+        private final UserRepository userRepository;
+        private final RoleRepository roleRepository;
+        private final UserSessionRepository userSessionRepository;
+        private final JwtService jwtService;
+
+        @Value("${fss.jwt.access-expiration}")
+        private long accessExpiration;
+
+        @Value("${fss.jwt.refresh-expiration}")
+        private long refreshExpiration;
+
+        @Value("${app.cookie.secure}")
+        private boolean cookieSecure;
+
+        @Value("${app.frontend.url}")
+        private String frontendUrl;
+
+        @Override
+        public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
+                        Authentication authentication) throws IOException, ServletException {
+
+                OAuth2User oauth2User = (OAuth2User) authentication.getPrincipal();
+                String email = oauth2User.getAttribute("email");
+                String name = oauth2User.getAttribute("name");
+                String picture = oauth2User.getAttribute("picture");
+
+                // 1. Tìm hoặc tạo User mới
+                User user = userRepository.findByEmail(email).orElseGet(() -> {
+                        Role userRole = roleRepository.findByName("USER")
+                                        .orElseThrow(() -> new RuntimeException("Default role USER not found"));
+
+                        User newUser = User.builder()
+                                        .email(email)
+                                        .displayName(name)
+                                        .avatar(picture)
+                                        .role(userRole)
+                                        .passwordHash(null)
+                                        .build();
+                        return userRepository.save(newUser);
+                });
+
+                // 2. Tạo token và lưu Cookie
+                String accessToken = jwtService.generateToken(user, TypeJwt.ACCESS);
+                String refreshToken = jwtService.generateToken(user, TypeJwt.REFRESH);
+
+                CookieUtils.addCookie(response, NameTypeToken.accessToken.name(), accessToken,
+                                (int) (accessExpiration / 1000),
+                                cookieSecure);
+                CookieUtils.addCookie(response, NameTypeToken.refreshToken.name(), refreshToken,
+                                (int) (refreshExpiration / 1000), cookieSecure);
+
+                // 3. Quản lý Session
+                UserSession session;
+                Optional<UserSession> existingSession = userSessionRepository.findByUser(user);
+
+                if (existingSession.isEmpty()) {
+                        session = UserSession.builder()
+                                        .user(user)
+                                        .refreshToken(refreshToken)
+                                        .sessionToken(accessToken)
+                                        .expiresAt(DateTimeUtils.toLocalDateTime(
+                                                        System.currentTimeMillis() + refreshExpiration))
+                                        .build();
+                } else {
+                        session = existingSession.get();
+                        session.setRefreshToken(refreshToken);
+                        session.setSessionToken(accessToken);
+                        session.setExpiresAt(
+                                        DateTimeUtils.toLocalDateTime(System.currentTimeMillis() + refreshExpiration));
+                        session.setModifiedBy(user.getEmail());
+                }
+                userSessionRepository.save(session);
+                // 4. Redirect về Front-end (trang chủ hoặc trang mong muốn)
+                getRedirectStrategy().sendRedirect(request, response, frontendUrl + "/home");
+        }
+}
