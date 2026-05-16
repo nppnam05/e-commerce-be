@@ -10,6 +10,7 @@ import org.springframework.stereotype.Component;
 import com.e_commerce.e_commerce_api.constant.SystemEntity;
 
 import java.util.Optional;
+import org.springframework.security.oauth2.core.user.OAuth2User;
 
 @Component
 public class ApplicationAuditAware implements AuditorAware<String> {
@@ -33,6 +34,11 @@ public class ApplicationAuditAware implements AuditorAware<String> {
 
         if (principal instanceof UserDetails userDetails) {
             return Optional.ofNullable(userDetails.getUsername());
+        }
+
+        if (principal instanceof OAuth2User oauth2User) {
+            // Google trả về email trong thuộc tính 'email'
+            return Optional.ofNullable(oauth2User.getAttribute("email"));
         }
 
         return Optional.ofNullable(principal.toString());

@@ -23,8 +23,7 @@ public class AuthEntryPoint implements AuthenticationEntryPoint {
         response.setContentType("application/json");
         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
 
-        ApiResponse<Void> body = ApiResponse.error("Unauthorized: Token Invalided" + authException.getMessage(), 401,
-                null);
+        ApiResponse<Void> body = ApiResponse.error("Unauthorized: Invalid or expired token", 401, null);
 
         new ObjectMapper().writeValue(response.getOutputStream(), body);
     }

@@ -1,8 +1,6 @@
 
 package com.e_commerce.e_commerce_api.dto.response;
 
-import com.e_commerce.e_commerce_api.dto.response.base.BaseResponse;
-
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
@@ -14,4 +12,5 @@ public class UserResponse extends BaseResponse {
     private Long id;
     private String email;
     private String userName;
+    private String displayName;
 }
