@@ -9,25 +9,25 @@ import org.springframework.stereotype.Service;
 
 import com.e_commerce.e_commerce_api.constant.TypeJwt;
 import com.e_commerce.e_commerce_api.entity.User;
+import com.e_commerce.e_commerce_api.utils.DateTimeUtils;
 
 import javax.crypto.SecretKey;
 import java.nio.charset.StandardCharsets;
-import java.util.Date;
 import java.util.function.Function;
 
 @Service
 public class JwtService {
 
-    @Value("${fss.jwt.access-secret}")
+    @Value("${jwt.access-secret}")
     private String accessSecret;
 
-    @Value("${fss.jwt.access-expiration}")
+    @Value("${jwt.access-expiration}")
     private long accessExpiration;
 
-    @Value("${fss.jwt.refresh-secret}")
+    @Value("${jwt.refresh-secret}")
     private String refreshSecret;
 
-    @Value("${fss.jwt.refresh-expiration}")
+    @Value("${jwt.refresh-expiration}")
     private long refreshExpiration;
 
     // Chuyển chuỗi secret thành SecretKey để dùng cho JJWT 0.12+
@@ -64,8 +64,8 @@ public class JwtService {
                 .subject(user.getEmail())
                 .claim("id", String.valueOf(user.getId()))
                 .claim("typeToken", type.name())
-                .issuedAt(new Date())
-                .expiration(new Date(System.currentTimeMillis() + expiration))
+                .issuedAt(DateTimeUtils.toDateNow())
+                .expiration(DateTimeUtils.toDateExpired(expiration))
                 .signWith(getSigningKey(type))
                 .compact();
     }
@@ -81,7 +81,7 @@ public class JwtService {
             String tokenType = claims.get("typeToken", String.class);
             boolean isCorrectType = type.name().equals(tokenType);
 
-            return isCorrectType && !claims.getExpiration().before(new Date());
+            return isCorrectType && !claims.getExpiration().before(DateTimeUtils.toDateNow());
         } catch (Exception e) {
             return false;
         }

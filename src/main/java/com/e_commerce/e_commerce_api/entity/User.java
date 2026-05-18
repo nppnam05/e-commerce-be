@@ -53,6 +53,12 @@ public class User extends BaseEntity implements UserDetails {
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
     private List<UserSession> userSessions;
 
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
+    private List<Cart> carts;
+
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
+    private List<Order> orders;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "RoleId")
     private Role role;

@@ -41,10 +41,10 @@ public class AuthService {
     private final AuthenticationManager authenticationManager;
     private final JwtService jwtService;
 
-    @Value("${fss.jwt.access-expiration}")
+    @Value("${jwt.access-expiration}")
     private long accessExpiration;
 
-    @Value("${fss.jwt.refresh-expiration}")
+    @Value("${jwt.refresh-expiration}")
     private long refreshExpiration;
 
     @Value("${app.cookie.secure}")
@@ -128,11 +128,21 @@ public class AuthService {
         var session = userSessionRepository.findByRefreshToken(refreshToken)
                 .orElseThrow(() -> new UnauthorizedException("Token has been revoked or used"));
 
+        if (session.getRevokedOn() != null) {
+            throw new UnauthorizedException("Token has been revoked");
+        }
+
         String newAccessToken = jwtService.generateToken(user, TypeJwt.ACCESS);
+        String newRefreshToken = jwtService.generateToken(user, TypeJwt.REFRESH);
         CookieUtils.addCookie(response, NameTypeToken.accessToken.name(), newAccessToken,
                 (int) (accessExpiration / 1000), cookieSecure);
+        CookieUtils.addCookie(response, NameTypeToken.refreshToken.name(), newRefreshToken,
+                (int) (refreshExpiration / 1000), cookieSecure);
 
         session.setSessionToken(newAccessToken);
+        session.setRefreshToken(newRefreshToken);
+        session.setLastAccessedOn(DateTimeUtils.toDateTimeNow());
+        session.setExpiresAt(DateTimeUtils.toLocalDateTime(System.currentTimeMillis() + refreshExpiration));
         userSessionRepository.save(session);
     }
 

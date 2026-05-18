@@ -15,7 +15,10 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import com.e_commerce.e_commerce_api.constant.TypeJwt;
+import com.e_commerce.e_commerce_api.entity.UserSession;
+import com.e_commerce.e_commerce_api.repository.UserSessionRepository;
 import com.e_commerce.e_commerce_api.service.JwtService;
+import com.e_commerce.e_commerce_api.utils.DateTimeUtils;
 
 import java.io.IOException;
 
@@ -25,6 +28,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtService jwtService;
     private final UserDetailsService userDetailsService;
+    private final UserSessionRepository userSessionRepository;
 
     @Override
     protected void doFilterInternal(
@@ -48,18 +52,27 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         // 3. Nếu có email và chưa được xác thực trong SecurityContext
         if (email != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-            UserDetails userDetails = this.userDetailsService.loadUserByUsername(email);
+            UserDetails userDetails = userDetailsService.loadUserByUsername(email);
 
             if (jwtService.isTokenValid(jwt, TypeJwt.ACCESS)) {
-                // Tạo đối tượng Authentication để báo cho Spring biết User này đã hợp lệ
-                UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
-                        userDetails,
-                        null,
-                        userDetails.getAuthorities());
-                authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                // check session trong DB
+                UserSession session = userSessionRepository.findBySessionToken(jwt).orElse(null);
+                boolean isSessionValid = session != null && session.getRevokedOn() == null;
+                if (isSessionValid) {
+                    // Tạo đối tượng Authentication để báo cho Spring biết User này đã hợp lệ
+                    UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
+                            userDetails,
+                            null,
+                            userDetails.getAuthorities());
+                    authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
 
-                // Lưu vào Context của hệ thống
-                SecurityContextHolder.getContext().setAuthentication(authToken);
+                    // Lưu vào Context của hệ thống
+                    SecurityContextHolder.getContext().setAuthentication(authToken);
+
+                    // cập nhật LastAccessedOn
+                    session.setLastAccessedOn(DateTimeUtils.toDateTimeNow());
+                    userSessionRepository.save(session);
+                }
             }
         }
         filterChain.doFilter(request, response);
