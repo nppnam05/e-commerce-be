@@ -1,0 +1,65 @@
+package com.e_commerce.e_commerce_api.entity;
+
+import java.math.BigDecimal;
+import java.util.List;
+import jakarta.persistence.*;
+import lombok.*;
+
+@Entity
+@Table(name = "products", schema = "inventories")
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+@Getter
+@Setter
+@EqualsAndHashCode(onlyExplicitlyIncluded = true, callSuper = false)
+public class Product extends BaseEntity {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @EqualsAndHashCode.Include
+    @Column(name = "Id")
+    private Long id;
+
+    @Column(name = "CategoryId", insertable = false, updatable = false)
+    private Long categoryId;
+
+    @Column(name = "ColorId", insertable = false, updatable = false)
+    private Long colorId;
+
+    @Column(name = "SizeId", insertable = false, updatable = false)
+    private Long sizeId;
+
+    @Column(name = "Price")
+    private BigDecimal price;
+
+    @Column(length = 200, name = "Name")
+    private String name;
+
+    @Column(columnDefinition = "TEXT", name = "Description")
+    private String description;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "CategoryId")
+    private Category category;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "ColorId")
+    private Color color;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "SizeId")
+    private Size size;
+
+    @OneToMany(mappedBy = "product", fetch = FetchType.LAZY)
+    private List<ProductImage> productImages;
+
+    @OneToMany(mappedBy = "product", fetch = FetchType.LAZY)
+    private List<Stock> stocks;
+
+    @OneToMany(mappedBy = "product", fetch = FetchType.LAZY)
+    private List<Cart> carts;
+
+    @OneToMany(mappedBy = "product", fetch = FetchType.LAZY)
+    private List<OrderProduct> orderProducts;
+}

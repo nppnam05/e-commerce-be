@@ -35,10 +35,10 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
         private final UserSessionRepository userSessionRepository;
         private final JwtService jwtService;
 
-        @Value("${fss.jwt.access-expiration}")
+        @Value("${jwt.access-expiration}")
         private long accessExpiration;
 
-        @Value("${fss.jwt.refresh-expiration}")
+        @Value("${jwt.refresh-expiration}")
         private long refreshExpiration;
 
         @Value("${app.cookie.secure}")

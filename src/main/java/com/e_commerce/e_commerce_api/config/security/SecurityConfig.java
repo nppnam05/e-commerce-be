@@ -46,6 +46,7 @@ public class SecurityConfig {
                                                                 "/swagger-resources/**",
                                                                 "/webjars/**")
                                                 .permitAll()
+                                                .requestMatchers("/admin/**").hasRole("ADMIN")
                                                 .anyRequest().authenticated()) // còn lại phải có JWT
                                 .oauth2Login(oauth2 -> oauth2
                                                 .successHandler(oauth2SuccessHandler))
