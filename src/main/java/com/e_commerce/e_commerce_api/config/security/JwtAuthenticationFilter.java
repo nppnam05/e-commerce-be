@@ -14,6 +14,7 @@ import org.springframework.security.web.authentication.WebAuthenticationDetailsS
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
+import com.e_commerce.e_commerce_api.constant.StatusEntity;
 import com.e_commerce.e_commerce_api.constant.TypeJwt;
 import com.e_commerce.e_commerce_api.entity.UserSession;
 import com.e_commerce.e_commerce_api.repository.UserSessionRepository;
@@ -57,8 +58,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             if (jwtService.isTokenValid(jwt, TypeJwt.ACCESS)) {
                 // check session trong DB
                 UserSession session = userSessionRepository.findBySessionToken(jwt).orElse(null);
-                boolean isSessionValid = session != null && session.getRevokedOn() == null;
-                if (isSessionValid) {
+                if (session != null && StatusEntity.ACT.toString().equals(session.getStatus())) {
                     // Tạo đối tượng Authentication để báo cho Spring biết User này đã hợp lệ
                     UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
                             userDetails,
@@ -69,9 +69,14 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                     // Lưu vào Context của hệ thống
                     SecurityContextHolder.getContext().setAuthentication(authToken);
 
-                    // cập nhật LastAccessedOn
-                    session.setLastAccessedOn(DateTimeUtils.toDateTimeNow());
-                    userSessionRepository.save(session);
+                    // cập nhật LastAccessedOn nếu đã quá 5 phút
+                    boolean shouldUpdate = session.getLastAccessedOn() == null ||
+                            session.getLastAccessedOn().isBefore(DateTimeUtils.toDateTimeNow().minusMinutes(5));
+
+                    if (shouldUpdate) {
+                        session.setLastAccessedOn(DateTimeUtils.toDateTimeNow());
+                        userSessionRepository.save(session);
+                    }
                 }
             }
         }

@@ -13,4 +13,6 @@ public class UserResponse extends BaseResponse {
     private String email;
     private String userName;
     private String displayName;
+    private String avatar;
+    private String deviceId;
 }
