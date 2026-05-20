@@ -1,6 +1,6 @@
 package com.e_commerce.e_commerce_api.service;
 
-import java.util.Optional;
+import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -10,6 +10,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.e_commerce.e_commerce_api.constant.NameTypeToken;
+import com.e_commerce.e_commerce_api.constant.StatusEntity;
 import com.e_commerce.e_commerce_api.constant.TypeJwt;
 import com.e_commerce.e_commerce_api.dto.request.auth.LoginRequest;
 import com.e_commerce.e_commerce_api.dto.request.user.CreateUserRequest;
@@ -23,9 +24,12 @@ import com.e_commerce.e_commerce_api.mapper.UserMapper;
 import com.e_commerce.e_commerce_api.repository.RoleRepository;
 import com.e_commerce.e_commerce_api.repository.UserRepository;
 import com.e_commerce.e_commerce_api.repository.UserSessionRepository;
+import com.e_commerce.e_commerce_api.utils.ClientInfo;
 import com.e_commerce.e_commerce_api.utils.CookieUtils;
 import com.e_commerce.e_commerce_api.utils.DateTimeUtils;
+import com.e_commerce.e_commerce_api.utils.DeviceInfoUtils;
 
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -51,55 +55,69 @@ public class AuthService {
     private boolean cookieSecure;
 
     @Transactional(dontRollbackOn = LoginFailedException.class)
-    public UserResponse login(LoginRequest request, HttpServletResponse response) {
-        var user = userRepository.findByEmail(request.getEmail())
+    public UserResponse login(LoginRequest requestLogin, String deviceIdClient, HttpServletResponse response, HttpServletRequest request) {
+        var user = userRepository.findByEmail(requestLogin.getEmail())
                 .orElseThrow(() -> new NotFoundException("User not found"));
 
-        // 1. Kiểm tra khóa tài khoản TRƯỚC khi làm bất cứ việc gì
+        // 1. Kiểm tra khóa tài khoản khi làm bất cứ việc gì
         if (user.getFailedLoginAttempts() >= 5) {
             throw new LoginFailedException(
                     "Account is locked due to too many failed attempts. Please contact support.");
         }
 
         try {
-            // 2. Thử xác thực
             authenticationManager.authenticate(
-                    new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword()));
-
-            // 3. Nếu thành công -> Reset số lần sai
+                    new UsernamePasswordAuthenticationToken(requestLogin.getEmail(), requestLogin.getPassword()));
             user.setFailedLoginAttempts(0);
             userRepository.save(user);
-
-            // 4. Tạo token và lưu Cookie
             String accessToken = jwtService.generateToken(user, TypeJwt.ACCESS);
             String refreshToken = jwtService.generateToken(user, TypeJwt.REFRESH);
 
-            CookieUtils.addCookie(response, NameTypeToken.accessToken.name(), accessToken,
+            CookieUtils.addCookie(response, NameTypeToken.accessToken.toString(), accessToken,
                     (int) (accessExpiration / 1000), cookieSecure);
-            CookieUtils.addCookie(response, NameTypeToken.refreshToken.name(), refreshToken,
+            CookieUtils.addCookie(response, NameTypeToken.refreshToken.toString(), refreshToken,
                     (int) (refreshExpiration / 1000), cookieSecure);
-
-            // 5. Quản lý Session
-            UserSession session;
-            Optional<UserSession> existingSession = userSessionRepository.findByUser(user);
-
-            if (existingSession.isEmpty()) {
-                session = UserSession.builder()
-                        .user(user)
-                        .refreshToken(refreshToken)
-                        .sessionToken(accessToken)
-                        .expiresAt(DateTimeUtils.toLocalDateTime(System.currentTimeMillis() + refreshExpiration))
-                        .build();
+            String deviceId;
+            if (deviceIdClient == null) {
+                deviceId = UUID.randomUUID().toString();
             } else {
-                session = existingSession.get();
-                session.setRefreshToken(refreshToken);
-                session.setSessionToken(accessToken);
-                session.setExpiresAt(DateTimeUtils.toLocalDateTime(System.currentTimeMillis() + refreshExpiration));
-                session.setModifiedBy(user.getEmail());
+                deviceId = deviceIdClient;
+                UserSession oldSession = userSessionRepository.findByDeviceId(deviceId, StatusEntity.ACT.toString())
+                        .orElse(null);
+                if (oldSession != null) {
+                    oldSession.setStatus(StatusEntity.REVOK.toString());
+                    oldSession.setRevokedOn(DateTimeUtils.toDateTimeNow());
+                    userSessionRepository.save(oldSession);
+                }
             }
+
+            UserSession session = UserSession.builder()
+                    .user(user)
+                    .refreshToken(refreshToken)
+                    .sessionToken(accessToken)
+                    .deviceId(deviceId)
+                    .deviceInfo(DeviceInfoUtils.getDeviceInfo(request.getHeader("User-Agent")))
+                    .userAgent(request.getHeader("User-Agent"))
+                    .ipAddress(ClientInfo.getClientIp(request))
+                    .expiresAt(DateTimeUtils.toLocalDateTime(System.currentTimeMillis() + refreshExpiration))
+                    .build();
             userSessionRepository.save(session);
 
-            return userMapper.toResponse(user);
+            var userResponse = UserResponse.builder()
+                    .id(user.getId())
+                    .email(user.getEmail())
+                    .userName(user.getUsername())
+                    .displayName(user.getDisplayName())
+                    .status(user.getStatus())
+                    .createdOn(user.getCreatedOn())
+                    .createdBy(user.getCreatedBy())
+                    .modifiedOn(user.getModifiedOn())
+                    .modifiedBy(user.getModifiedBy())
+                    .avatar(user.getAvatar())
+                    .deviceId(deviceId)
+                    .build();
+
+            return userResponse;
 
         } catch (BadCredentialsException e) {
             // 6. Sai mật khẩu -> Tăng biến đếm và LƯU NGAY
@@ -115,7 +133,7 @@ public class AuthService {
     }
 
     @Transactional
-    public void refreshToken(String refreshToken, HttpServletResponse response) {
+    public void refreshToken(String refreshToken, String deviceIdClient, HttpServletResponse response, HttpServletRequest request) {
         if (refreshToken == null || !jwtService.isTokenValid(refreshToken, TypeJwt.REFRESH)) {
             throw new UnauthorizedException("Invalid or expired refresh token");
         }
@@ -124,12 +142,15 @@ public class AuthService {
         var user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new UnauthorizedException("User not found"));
 
-        // Kiểm tra token có khớp với token lưu trong DB không
-        var session = userSessionRepository.findByRefreshToken(refreshToken)
+        UserSession oldSession = userSessionRepository.findByDeviceId(deviceIdClient, StatusEntity.ACT.toString())
                 .orElseThrow(() -> new UnauthorizedException("Token has been revoked or used"));
 
-        if (session.getRevokedOn() != null) {
+        if (StatusEntity.REVOK.toString().equals(oldSession.getStatus())) {
             throw new UnauthorizedException("Token has been revoked");
+        }
+
+        if (!oldSession.getRefreshToken().toString().equals(refreshToken)) {
+            throw new UnauthorizedException("Token not match");
         }
 
         String newAccessToken = jwtService.generateToken(user, TypeJwt.ACCESS);
@@ -139,19 +160,32 @@ public class AuthService {
         CookieUtils.addCookie(response, NameTypeToken.refreshToken.name(), newRefreshToken,
                 (int) (refreshExpiration / 1000), cookieSecure);
 
-        session.setSessionToken(newAccessToken);
-        session.setRefreshToken(newRefreshToken);
-        session.setLastAccessedOn(DateTimeUtils.toDateTimeNow());
-        session.setExpiresAt(DateTimeUtils.toLocalDateTime(System.currentTimeMillis() + refreshExpiration));
-        userSessionRepository.save(session);
+        oldSession.setStatus(StatusEntity.REVOK.toString());
+        userSessionRepository.save(oldSession);
+
+        UserSession newUsSession = UserSession.builder()
+                .user(user)
+                .refreshToken(newRefreshToken)
+                .sessionToken(newAccessToken)
+                .deviceId(deviceIdClient)
+                .deviceInfo(oldSession.getDeviceInfo())
+                .userAgent(oldSession.getUserAgent())
+                .ipAddress(oldSession.getIpAddress())
+                .expiresAt(DateTimeUtils.toLocalDateTime(System.currentTimeMillis() + refreshExpiration))
+                .build();
+        userSessionRepository.save(newUsSession);
     }
 
     @Transactional
-    public void logout(String refreshToken, HttpServletResponse response) {
-        if (refreshToken != null) {
-            userSessionRepository.findByRefreshToken(refreshToken)
-                    .ifPresent(userSessionRepository::delete);
+    public void logout(String deviceIdClient, HttpServletResponse response, HttpServletRequest request) {
+
+        UserSession session = userSessionRepository.findByDeviceId(deviceIdClient, StatusEntity.ACT.toString())
+                .orElse(null);
+        if (session != null) {
+            session.setStatus(StatusEntity.REVOK.toString());
+            userSessionRepository.save(session);
         }
+
         CookieUtils.deleteCookie(response, NameTypeToken.accessToken.name(), cookieSecure);
         CookieUtils.deleteCookie(response, NameTypeToken.refreshToken.name(), cookieSecure);
     }
