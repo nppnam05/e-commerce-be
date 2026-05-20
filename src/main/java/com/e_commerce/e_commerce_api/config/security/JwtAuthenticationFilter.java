@@ -14,11 +14,13 @@ import org.springframework.security.web.authentication.WebAuthenticationDetailsS
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
+import com.e_commerce.e_commerce_api.constant.NameTypeToken;
 import com.e_commerce.e_commerce_api.constant.StatusEntity;
 import com.e_commerce.e_commerce_api.constant.TypeJwt;
 import com.e_commerce.e_commerce_api.entity.UserSession;
 import com.e_commerce.e_commerce_api.repository.UserSessionRepository;
 import com.e_commerce.e_commerce_api.service.JwtService;
+import com.e_commerce.e_commerce_api.utils.CookieUtils;
 import com.e_commerce.e_commerce_api.utils.DateTimeUtils;
 
 import java.io.IOException;
@@ -38,17 +40,23 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             @NonNull FilterChain filterChain) throws ServletException, IOException {
 
         final String authHeader = request.getHeader("Authorization");
-        final String jwt;
+        String jwt = null;
         final String email;
 
-        // 1. Kiểm tra xem header có chứa Bearer Token không
-        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+        // Ưu tiên Authorization header
+        if (authHeader != null && authHeader.startsWith("Bearer ")) {
+            jwt = authHeader.substring(7);
+        } else {
+            // Fallback: đọc từ cookie
+            jwt = CookieUtils.getCookieValue(request, NameTypeToken.accessToken.name());
+        }
+
+        if (jwt == null) {
             filterChain.doFilter(request, response);
             return;
         }
 
-        // 2. Trích xuất token và email
-        jwt = authHeader.substring(7);
+        // 2. Trích xuất email
         email = jwtService.extractSubject(jwt, TypeJwt.ACCESS);
 
         // 3. Nếu có email và chưa được xác thực trong SecurityContext
