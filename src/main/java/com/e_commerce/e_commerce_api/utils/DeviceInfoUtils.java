@@ -10,42 +10,33 @@ import java.util.Map;
 @UtilityClass
 public class DeviceInfoUtils {
 
-    private static final UserAgentAnalyzer analyzer =
-            UserAgentAnalyzer.newBuilder()
-                    .hideMatcherLoadStats()
-                    .withCache(1000)
-                    .build();
+        private static final UserAgentAnalyzer analyzer = UserAgentAnalyzer.newBuilder()
+                        .hideMatcherLoadStats()
+                        .withCache(1000)
+                        .build();
 
-    public static Map<String, String> parse(String userAgentString) {
+        public static Map<String, String> parse(String userAgentString) {
 
-        UserAgent agent = analyzer.parse(userAgentString);
+                if (userAgentString == null || userAgentString.isBlank()) {
+                        return Map.of(
+                                        "os", "Unknown",
+                                        "browser", "Unknown",
+                                        "deviceType", "Unknown");
+                }
 
-        Map<String, String> deviceInfo = new HashMap<>();
+                UserAgent agent = analyzer.parse(userAgentString);
 
-        deviceInfo.put("os",
-                agent.getValue("OperatingSystemNameVersion"));
+                Map<String, String> info = new HashMap<>();
 
-        deviceInfo.put("browser",
-                agent.getValue("AgentNameVersion"));
+                info.put("os",
+                                agent.getValue("OperatingSystemNameVersion"));
 
-        deviceInfo.put("device",
-                agent.getValue("DeviceName"));
+                info.put("browser",
+                                agent.getValue("AgentNameVersion"));
 
-        deviceInfo.put("type",
-                agent.getValue("DeviceClass"));
+                info.put("deviceType",
+                                agent.getValue("DeviceClass"));
 
-        return deviceInfo;
-    }
-
-    public static String getDeviceInfo(String userAgentString) {
-        if (userAgentString == null || userAgentString.isEmpty()) {
-            return "Unknown Device";
+                return info;
         }
-        UserAgent agent = analyzer.parse(userAgentString);
-        String os = agent.getValue("OperatingSystemNameVersion");
-        String browser = agent.getValue("AgentNameVersion");
-        String device = agent.getValue("DeviceName");
-        
-        return String.format("%s - %s (%s)", os, browser, device);
-    }
 }

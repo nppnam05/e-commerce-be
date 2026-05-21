@@ -10,8 +10,8 @@ import com.e_commerce.e_commerce_api.entity.UserSession;
 
 @Repository
 public interface UserSessionRepository extends JpaRepository<UserSession, Long> {
-    @Query("SELECT u FROM UserSession u WHERE u.deviceId = :deviceId AND u.status = :status")
-    Optional<UserSession> findByDeviceId(String deviceId, String status);
+    @Query("SELECT u FROM UserSession u WHERE u.deviceId = :deviceId AND u.user = :user AND u.status = :status")
+    Optional<UserSession> findByDeviceId(String deviceId, User user, String status);
 
     Optional<UserSession> findByRefreshToken(String refreshToken);
 
