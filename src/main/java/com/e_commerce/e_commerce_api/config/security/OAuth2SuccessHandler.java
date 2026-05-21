@@ -23,6 +23,7 @@ import com.e_commerce.e_commerce_api.service.JwtService;
 import com.e_commerce.e_commerce_api.utils.ClientInfo;
 import com.e_commerce.e_commerce_api.utils.CookieUtils;
 import com.e_commerce.e_commerce_api.utils.DateTimeUtils;
+import com.e_commerce.e_commerce_api.utils.DeviceInfoUtils;
 
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -80,12 +81,13 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
                         deviceId = UUID.randomUUID().toString();
                 } else {
                         // Revoke session cũ của device này
-                        userSessionRepository.findByDeviceId(deviceId, StatusEntity.ACT.toString())
+                        userSessionRepository.findByDeviceId(deviceId, user, StatusEntity.ACT.toString())
                                         .ifPresent(old -> {
                                                 old.setStatus(StatusEntity.REVOK.toString());
                                                 old.setRevokedOn(DateTimeUtils.toDateTimeNow());
                                                 userSessionRepository.save(old);
                                         });
+
                 }
 
                 // 2. Tạo token và lưu Cookie
@@ -104,6 +106,7 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
                                 .refreshToken(refreshToken)
                                 .sessionToken(accessToken)
                                 .deviceId(deviceId)
+                                .deviceInfo(DeviceInfoUtils.parse(request.getHeader("User-Agent")).toString())
                                 .userAgent(request.getHeader("User-Agent"))
                                 .ipAddress(ClientInfo.getClientIp(request))
                                 .expiresAt(DateTimeUtils.toLocalDateTime(

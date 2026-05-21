@@ -6,6 +6,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -55,7 +57,8 @@ public class AuthService {
     private boolean cookieSecure;
 
     @Transactional(dontRollbackOn = LoginFailedException.class)
-    public UserResponse login(LoginRequest requestLogin, String deviceIdClient, HttpServletResponse response, HttpServletRequest request) {
+    public UserResponse login(LoginRequest requestLogin, String deviceIdClient, HttpServletResponse response,
+            HttpServletRequest request) {
         var user = userRepository.findByEmail(requestLogin.getEmail())
                 .orElseThrow(() -> new NotFoundException("User not found"));
 
@@ -66,8 +69,11 @@ public class AuthService {
         }
 
         try {
-            authenticationManager.authenticate(
+            Authentication authResult = authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(requestLogin.getEmail(), requestLogin.getPassword()));
+            // Set vào SecurityContext
+            SecurityContextHolder.getContext().setAuthentication(authResult);
+
             user.setFailedLoginAttempts(0);
             userRepository.save(user);
             String accessToken = jwtService.generateToken(user, TypeJwt.ACCESS);
@@ -82,7 +88,8 @@ public class AuthService {
                 deviceId = UUID.randomUUID().toString();
             } else {
                 deviceId = deviceIdClient;
-                UserSession oldSession = userSessionRepository.findByDeviceId(deviceId, StatusEntity.ACT.toString())
+                UserSession oldSession = userSessionRepository
+                        .findByDeviceId(deviceId, user, StatusEntity.ACT.toString())
                         .orElse(null);
                 if (oldSession != null) {
                     oldSession.setStatus(StatusEntity.REVOK.toString());
@@ -96,7 +103,7 @@ public class AuthService {
                     .refreshToken(refreshToken)
                     .sessionToken(accessToken)
                     .deviceId(deviceId)
-                    .deviceInfo(DeviceInfoUtils.getDeviceInfo(request.getHeader("User-Agent")))
+                    .deviceInfo(DeviceInfoUtils.parse(request.getHeader("User-Agent")).toString())
                     .userAgent(request.getHeader("User-Agent"))
                     .ipAddress(ClientInfo.getClientIp(request))
                     .expiresAt(DateTimeUtils.toLocalDateTime(System.currentTimeMillis() + refreshExpiration))
@@ -133,7 +140,8 @@ public class AuthService {
     }
 
     @Transactional
-    public void refreshToken(String refreshToken, String deviceIdClient, HttpServletResponse response, HttpServletRequest request) {
+    public void refreshToken(String refreshToken, String deviceIdClient, HttpServletResponse response,
+            HttpServletRequest request) {
         if (refreshToken == null || !jwtService.isTokenValid(refreshToken, TypeJwt.REFRESH)) {
             throw new UnauthorizedException("Invalid or expired refresh token");
         }
@@ -142,7 +150,7 @@ public class AuthService {
         var user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new UnauthorizedException("User not found"));
 
-        UserSession oldSession = userSessionRepository.findByDeviceId(deviceIdClient, StatusEntity.ACT.toString())
+        UserSession oldSession = userSessionRepository.findByDeviceId(deviceIdClient, user, StatusEntity.ACT.toString())
                 .orElseThrow(() -> new UnauthorizedException("Token has been revoked or used"));
 
         if (StatusEntity.REVOK.toString().equals(oldSession.getStatus())) {
@@ -177,13 +185,22 @@ public class AuthService {
     }
 
     @Transactional
-    public void logout(String deviceIdClient, HttpServletResponse response, HttpServletRequest request) {
-
-        UserSession session = userSessionRepository.findByDeviceId(deviceIdClient, StatusEntity.ACT.toString())
-                .orElse(null);
-        if (session != null) {
-            session.setStatus(StatusEntity.REVOK.toString());
-            userSessionRepository.save(session);
+    public void logout(String refreshToken, String deviceIdClient, HttpServletResponse response,
+            HttpServletRequest request) {
+        try {
+            if (refreshToken != null && jwtService.isTokenValid(refreshToken, TypeJwt.REFRESH)) {
+                String email = jwtService.extractSubject(refreshToken, TypeJwt.REFRESH);
+                userRepository.findByEmail(email).ifPresent(user -> {
+                    userSessionRepository.findByDeviceId(deviceIdClient, user, StatusEntity.ACT.toString())
+                            .ifPresent(session -> {
+                                session.setStatus(StatusEntity.REVOK.toString());
+                                session.setRevokedOn(DateTimeUtils.toDateTimeNow());
+                                userSessionRepository.save(session);
+                            });
+                });
+            }
+        } catch (Exception e) {
+            // Bỏ qua lỗi để đảm bảo việc xóa cookie luôn được thực hiện
         }
 
         CookieUtils.deleteCookie(response, NameTypeToken.accessToken.name(), cookieSecure);
