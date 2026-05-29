@@ -10,8 +10,9 @@ import lombok.experimental.SuperBuilder;
 @Setter
 @SuperBuilder
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class ProductImageResponse extends BaseResponse {
-    private Long id;
-    private Long productId;
-    private String url;
+public class DashboardTotal {
+    private Long totalUsers;
+    private Long totalPending;
+    private Long totalSales;
+    private Long totalOrders;
 }
