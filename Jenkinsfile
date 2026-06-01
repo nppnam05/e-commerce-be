@@ -25,19 +25,20 @@ pipeline {
         }
 
         stage('Deploy') {
-        steps {
-            sh """
-                docker stop ${CONTAINER_NAME} || true
-                docker rm ${CONTAINER_NAME} || true
+            steps {
+                sh """
+                    docker stop ${CONTAINER_NAME} || true
+                    docker rm ${CONTAINER_NAME} || true
 
-                docker run -d \
-                    --name ${CONTAINER_NAME} \
-                    --network ${NETWORK} \
-                    -p ${APP_PORT}:${CONTAINER_PORT} \
-                    --restart always \
-                    --env-file /root/app/e-commerce-api/.env \
-                    ${IMAGE_NAME}:latest
-            """
+                    docker run -d \
+                        --name ${CONTAINER_NAME} \
+                        --network ${NETWORK} \
+                        -p ${APP_PORT}:${CONTAINER_PORT} \
+                        --restart always \
+                        --env-file /root/app/e-commerce-api/.env \
+                        ${IMAGE_NAME}:latest
+                """
+            }
         }
     }
 
