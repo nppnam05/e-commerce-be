@@ -35,7 +35,7 @@ pipeline {
                         --network ${NETWORK} \
                         -p ${APP_PORT}:${CONTAINER_PORT} \
                         --restart always \
-                        --env-file /root/app/e-commerce-api/.env \
+                        --env-file /env/e-commerce-api.env \
                         ${IMAGE_NAME}:latest
                 """
             }
