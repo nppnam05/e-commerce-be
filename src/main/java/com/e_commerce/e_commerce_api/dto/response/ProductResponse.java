@@ -18,6 +18,7 @@ public class ProductResponse extends BaseResponse {
     private Long categoryId;
     private Long colorId;
     private Long sizeId;
+    private String colorCode;
     private BigDecimal price;
     private String name;
     private String description;
