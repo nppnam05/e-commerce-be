@@ -25,7 +25,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
     @Query(value = """
             SELECT
                 (SELECT COUNT(*) FROM "identity"."users" WHERE "Status" = 'ACT') AS "totalUsers",
-                (SELECT COUNT(*) FROM "sales"."orders" WHERE "Status" = 'PEN') AS "totalPending",
+                (SELECT COUNT(*) FROM "sales"."orders" WHERE "Status" = 'PND') AS "totalPending",
                 (SELECT COUNT(*) FROM "sales"."orders" WHERE "Status" = 'COM') AS "totalSales",
                 (SELECT COUNT(*) FROM "sales"."orders") AS "totalOrders"
 
