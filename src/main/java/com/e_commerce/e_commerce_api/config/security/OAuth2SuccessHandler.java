@@ -48,8 +48,8 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
         @Value("${app.cookie.secure}")
         private boolean cookieSecure;
 
-        @Value("${app.frontend.url}")
-        private String frontendUrl;
+        @Value("${app.cors.allowed-origins}")
+        private String[] frontendUrls;
 
         @Override
         @Transactional
@@ -115,7 +115,7 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
                                 .build();
                 userSessionRepository.save(session);
                 // 4. Redirect về Front-end (trang chủ hoặc trang mong muốn)
-                String redirectUrl = frontendUrl + "/home?deviceId=" + deviceId;
+                String redirectUrl = frontendUrls[0] + "/home?deviceId=" + deviceId;
                 getRedirectStrategy().sendRedirect(request, response, redirectUrl);
         }
 }
