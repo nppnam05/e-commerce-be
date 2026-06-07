@@ -152,6 +152,11 @@ docker-compose up -d
 
 **Live Demo:** http://nam23211.id.vn:3000
 
+## 🔗 Related Projects
+
+- [Frontend](https://github.com/nppnam05/e-commerce-fe)
+- [Database Schema](https://github.com/nppnam05/e-commerce-database)
+
 ## 👨‍💻 Author
 
 **Nguyen Pham Phuong Nam**
