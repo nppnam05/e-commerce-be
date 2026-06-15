@@ -29,7 +29,4 @@ public class CreateUserRequest {
     @NotBlank(message = "Phone number is required")
     @Size(min = 10, message = "Phone number must be at least 10 digits")
     private String phone;
-
-    @NotBlank(message = "Location is required")
-    private String location;
 }

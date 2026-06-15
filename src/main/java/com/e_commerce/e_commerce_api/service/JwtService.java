@@ -3,12 +3,17 @@ package com.e_commerce.e_commerce_api.service;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
+import jakarta.servlet.http.HttpServletRequest;
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
+import com.e_commerce.e_commerce_api.constant.NameTypeToken;
 import com.e_commerce.e_commerce_api.constant.TypeJwt;
 import com.e_commerce.e_commerce_api.entity.User;
+import com.e_commerce.e_commerce_api.exception.UnauthorizedException;
+import com.e_commerce.e_commerce_api.utils.CookieUtils;
 import com.e_commerce.e_commerce_api.utils.DateTimeUtils;
 
 import javax.crypto.SecretKey;
@@ -85,5 +90,14 @@ public class JwtService {
         } catch (Exception e) {
             return false;
         }
+    }
+
+    public Long extractUserIdFromCookie(HttpServletRequest request) {
+        String token = CookieUtils.getCookieValue(request, NameTypeToken.accessToken.name());
+        if (token == null) {
+            throw new UnauthorizedException("No access token found");
+        }
+        String id = extractClaim(token, claims -> claims.get("id", String.class), TypeJwt.ACCESS);
+        return Long.parseLong(id);
     }
 }

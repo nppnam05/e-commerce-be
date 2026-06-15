@@ -9,7 +9,14 @@ public interface OrderProjection {
 
     String getCustomerName();
 
-    String getAddress();
+    String getWard();
+
+    String getDistrict();
+
+    String getStreet();
+
+    String getCity();
+
     String getCode();
 
     LocalDateTime getCreatedOn();

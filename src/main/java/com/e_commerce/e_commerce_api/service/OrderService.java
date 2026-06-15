@@ -1,6 +1,5 @@
 package com.e_commerce.e_commerce_api.service;
 
-import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -9,12 +8,11 @@ import org.springframework.stereotype.Service;
 import com.e_commerce.e_commerce_api.dto.response.MonthlyRevenueResponse;
 import com.e_commerce.e_commerce_api.dto.response.OrderDetailResponse;
 import com.e_commerce.e_commerce_api.dto.response.OrderResponse;
+import com.e_commerce.e_commerce_api.dto.response.OrderUserResponse;
 import com.e_commerce.e_commerce_api.dto.response.ProductOrderResponse;
 import com.e_commerce.e_commerce_api.dto.response.base.PageResponse;
-import com.e_commerce.e_commerce_api.projection.MonthlyRevenueProjection;
 import com.e_commerce.e_commerce_api.repository.OrderRepository;
 
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -29,6 +27,28 @@ public class OrderService {
                 return true;
         }
 
+        public PageResponse<List<OrderUserResponse>> getOrdersByUserId(Long userId, int pageNumber, int pageSize) {
+                int offset = (pageNumber - 1) * pageSize;
+                var result = orderRepository.findOrdersByUserId(userId, pageSize, offset);
+                var orders = result.stream()
+                                .map(p -> (OrderUserResponse) OrderUserResponse.builder()
+                                                .id(p.getId())
+                                                .status(p.getStatus())
+                                                .code(p.getCode())
+                                                .createdOn(p.getCreatedOn())
+                                                .totalPrice(p.getTotalPrice())
+                                                .totalQuantity(p.getTotalQuantity())
+                                                .address("Đường %s, Phường %s, Quận %s, Thành phố %s".formatted(
+                                                                p.getStreet(),
+                                                                p.getWard(),
+                                                                p.getDistrict(),
+                                                                p.getCity()))
+                                                .build())
+                                .toList();
+                long total = orderRepository.countOrdersByUserId(userId);
+                return PageResponse.mapToPageResponse(orders, pageNumber, pageSize, total);
+        }
+
         public PageResponse<List<OrderResponse>> getOrders(LocalDate dateTime, String status, int pageNumber,
                         int pageSize) {
                 int offset = (pageNumber - 1) * pageSize;
@@ -40,7 +60,11 @@ public class OrderService {
                                                 .code(p.getCode())
                                                 .createdOn(p.getCreatedOn())
                                                 .customerName(p.getCustomerName())
-                                                .address(p.getAddress())
+                                                .address("Đường %s, Phường %s, Quận %s, Thành phố %s".formatted(
+                                                                p.getStreet(),
+                                                                p.getWard(),
+                                                                p.getDistrict(),
+                                                                p.getCity()))
                                                 .build())
                                 .toList();
                 long total = orderRepository.countOrders(dateTime, status);
@@ -50,7 +74,7 @@ public class OrderService {
         public List<MonthlyRevenueResponse> getMonthlyRevenueForThisYear() {
                 var monthlyRevenues = orderRepository.getMonthlyRevenueForThisYear();
                 var result = MonthlyRevenueResponse.initMonths();
-                monthlyRevenues.forEach((value) ->{
+                monthlyRevenues.forEach((value) -> {
                         result.get(value.getMonth() - 1).setRevenue(value.getRevenue());
                 });
                 return result;
@@ -81,7 +105,11 @@ public class OrderService {
                                 .createdOn(order.getCreatedOn())
                                 .status(order.getStatus())
                                 .customerName(order.getCustomerName())
-                                .address(order.getAddress())
+                                .address("Đường %s, Phường %s, Quận %s, Thành phố %s".formatted(
+                                                order.getStreet(),
+                                                order.getWard(),
+                                                order.getDistrict(),
+                                                order.getCity()))
                                 .totalAmount(order.getTotalAmount())
                                 .products(productOrderResponses)
                                 .build();
