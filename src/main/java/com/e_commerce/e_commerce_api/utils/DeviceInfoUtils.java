@@ -10,33 +10,25 @@ import java.util.Map;
 @UtilityClass
 public class DeviceInfoUtils {
 
-        private static final UserAgentAnalyzer analyzer = UserAgentAnalyzer.newBuilder()
-                        .hideMatcherLoadStats()
-                        .withCache(1000)
-                        .build();
+    private static final UserAgentAnalyzer analyzer =
+            UserAgentAnalyzer.newBuilder().hideMatcherLoadStats().withCache(1000).build();
 
-        public static Map<String, String> parse(String userAgentString) {
+    public static Map<String, String> parse(String userAgentString) {
 
-                if (userAgentString == null || userAgentString.isBlank()) {
-                        return Map.of(
-                                        "os", "Unknown",
-                                        "browser", "Unknown",
-                                        "deviceType", "Unknown");
-                }
-
-                UserAgent agent = analyzer.parse(userAgentString);
-
-                Map<String, String> info = new HashMap<>();
-
-                info.put("os",
-                                agent.getValue("OperatingSystemNameVersion"));
-
-                info.put("browser",
-                                agent.getValue("AgentNameVersion"));
-
-                info.put("deviceType",
-                                agent.getValue("DeviceClass"));
-
-                return info;
+        if (userAgentString == null || userAgentString.isBlank()) {
+            return Map.of("os", "Unknown", "browser", "Unknown", "deviceType", "Unknown");
         }
+
+        UserAgent agent = analyzer.parse(userAgentString);
+
+        Map<String, String> info = new HashMap<>();
+
+        info.put("os", agent.getValue("OperatingSystemNameVersion"));
+
+        info.put("browser", agent.getValue("AgentNameVersion"));
+
+        info.put("deviceType", agent.getValue("DeviceClass"));
+
+        return info;
+    }
 }

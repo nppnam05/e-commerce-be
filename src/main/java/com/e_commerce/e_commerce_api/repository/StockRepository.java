@@ -8,5 +8,5 @@ import com.e_commerce.e_commerce_api.entity.Stock;
 @Repository
 public interface StockRepository extends JpaRepository<Stock, Long> {
     Optional<Stock> findByProductId(Long productId);
-    
+
 }

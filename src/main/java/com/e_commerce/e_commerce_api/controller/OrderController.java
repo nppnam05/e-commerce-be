@@ -27,31 +27,34 @@ public class OrderController {
 
     @GetMapping
     public ResponseEntity<ApiResponse<PageResponse<List<OrderResponse>>>> getOrders(
-            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dateTime,
+            @RequestParam(required = false)
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dateTime,
             @RequestParam(required = false) String status,
             @RequestParam(defaultValue = "1") int pageNumber,
             @RequestParam(defaultValue = "10") int pageSize) {
-        return ResponseEntity.ok(ApiResponse.success(orderService.getOrders(dateTime, status, pageNumber, pageSize),
-                "Get orders successfully", 200));
+        return ResponseEntity.ok(
+                ApiResponse.success(orderService.getOrders(dateTime, status, pageNumber, pageSize),
+                        "Get orders successfully", 200));
     }
 
     @GetMapping("/user/{userId}")
     public ResponseEntity<ApiResponse<PageResponse<List<OrderUserResponse>>>> getUserOrders(
-            @PathVariable Long userId,
-            @RequestParam(defaultValue = "1") int pageNumber,
+            @PathVariable Long userId, @RequestParam(defaultValue = "1") int pageNumber,
             @RequestParam(defaultValue = "10") int pageSize) {
-        return ResponseEntity.ok(ApiResponse.success(orderService.getOrdersByUserId(userId, pageNumber, pageSize),
-                "Get user orders successfully", 200));
+        return ResponseEntity.ok(
+                ApiResponse.success(orderService.getOrdersByUserId(userId, pageNumber, pageSize),
+                        "Get user orders successfully", 200));
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<ApiResponse<OrderDetailResponse>> getOrderDetail(@PathVariable Long id) {
-        return ResponseEntity
-                .ok(ApiResponse.success(orderService.getOrderDetail(id), "Get order detail successfully", 200));
+        return ResponseEntity.ok(ApiResponse.success(orderService.getOrderDetail(id),
+                "Get order detail successfully", 200));
     }
 
     @PutMapping("/{id}/status")
-    public ResponseEntity<ApiResponse<Boolean>> updateOrderStatus(@PathVariable Long id, @RequestParam String status) {
+    public ResponseEntity<ApiResponse<Boolean>> updateOrderStatus(@PathVariable Long id,
+            @RequestParam String status) {
         return ResponseEntity.ok(ApiResponse.success(orderService.updateOrderStatus(id, status),
                 "Order status updated successfully", 200));
     }

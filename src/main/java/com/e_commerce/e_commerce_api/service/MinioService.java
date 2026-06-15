@@ -27,12 +27,9 @@ public class MinioService {
         try {
             String fileName = UUID.randomUUID() + "_" + file.getOriginalFilename();
 
-            minioClient.putObject(PutObjectArgs.builder()
-                    .bucket(bucket)
-                    .object(fileName)
+            minioClient.putObject(PutObjectArgs.builder().bucket(bucket).object(fileName)
                     .stream(file.getInputStream(), file.getSize(), -1)
-                    .contentType(file.getContentType())
-                    .build());
+                    .contentType(file.getContentType()).build());
 
             return endpoint + "/" + bucket + "/" + fileName;
 
@@ -50,10 +47,8 @@ public class MinioService {
         try {
             String fileName = fileUrl.substring(fileUrl.lastIndexOf("/") + 1);
 
-            minioClient.removeObject(RemoveObjectArgs.builder()
-                    .bucket(bucket)
-                    .object(fileName)
-                    .build());
+            minioClient.removeObject(
+                    RemoveObjectArgs.builder().bucket(bucket).object(fileName).build());
 
         } catch (Exception e) {
             throw new RuntimeException("Delete failed: " + e.getMessage());

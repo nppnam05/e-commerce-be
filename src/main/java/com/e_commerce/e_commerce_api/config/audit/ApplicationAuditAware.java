@@ -22,9 +22,8 @@ public class ApplicationAuditAware implements AuditorAware<String> {
 
         // 2. Kiểm tra xem có ai đăng nhập không, hoặc có phải là người dùng ẩn danh
         // (Anonymous) không
-        if (authentication == null ||
-                !authentication.isAuthenticated() ||
-                authentication instanceof AnonymousAuthenticationToken) {
+        if (authentication == null || !authentication.isAuthenticated()
+                || authentication instanceof AnonymousAuthenticationToken) {
             return Optional.of(SystemEntity.SYSTEM.toString());
         }
 

@@ -34,88 +34,78 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
 
-        private final UserRepository userRepository;
-        private final RoleRepository roleRepository;
-        private final UserSessionRepository userSessionRepository;
-        private final JwtService jwtService;
+    private final UserRepository userRepository;
+    private final RoleRepository roleRepository;
+    private final UserSessionRepository userSessionRepository;
+    private final JwtService jwtService;
 
-        @Value("${jwt.access-expiration}")
-        private long accessExpiration;
+    @Value("${jwt.access-expiration}")
+    private long accessExpiration;
 
-        @Value("${jwt.refresh-expiration}")
-        private long refreshExpiration;
+    @Value("${jwt.refresh-expiration}")
+    private long refreshExpiration;
 
-        @Value("${app.cookie.secure}")
-        private boolean cookieSecure;
+    @Value("${app.cookie.secure}")
+    private boolean cookieSecure;
 
-        @Value("${app.cors.allowed-origins}")
-        private String[] frontendUrls;
+    @Value("${app.cors.allowed-origins}")
+    private String[] frontendUrls;
 
-        @Override
-        @Transactional
-        public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
-                        Authentication authentication) throws IOException, ServletException {
+    @Override
+    @Transactional
+    public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
+            Authentication authentication) throws IOException, ServletException {
 
-                OAuth2User oauth2User = (OAuth2User) authentication.getPrincipal();
-                String email = oauth2User.getAttribute("email");
-                String name = oauth2User.getAttribute("name");
-                String picture = oauth2User.getAttribute("picture");
+        OAuth2User oauth2User = (OAuth2User) authentication.getPrincipal();
+        String email = oauth2User.getAttribute("email");
+        String name = oauth2User.getAttribute("name");
+        String picture = oauth2User.getAttribute("picture");
 
-                // 1. Tìm hoặc tạo User mới
-                User user = userRepository.findByEmail(email).orElseGet(() -> {
-                        Role userRole = roleRepository.findByName("USER")
-                                        .orElseThrow(() -> new RuntimeException("Default role USER not found"));
+        // 1. Tìm hoặc tạo User mới
+        User user = userRepository.findByEmail(email).orElseGet(() -> {
+            Role userRole = roleRepository.findByName("USER")
+                    .orElseThrow(() -> new RuntimeException("Default role USER not found"));
 
-                        User newUser = User.builder()
-                                        .email(email)
-                                        .displayName(name)
-                                        .avatar(picture)
-                                        .role(userRole)
-                                        .passwordHash(null)
-                                        .build();
-                        return userRepository.save(newUser);
-                });
+            User newUser = User.builder().email(email).displayName(name).avatar(picture)
+                    .role(userRole).passwordHash(null).build();
+            return userRepository.save(newUser);
+        });
 
-                String deviceId = CookieUtils.getCookieValue(request, "deviceId");
+        String deviceId = CookieUtils.getCookieValue(request, "deviceId");
 
-                if (deviceId == null) {
-                        deviceId = UUID.randomUUID().toString();
-                } else {
-                        // Revoke session cũ của device này
-                        userSessionRepository.findByDeviceId(deviceId, user, StatusEntity.ACT.toString())
-                                        .ifPresent(old -> {
-                                                old.setStatus(StatusEntity.REVOK.toString());
-                                                old.setRevokedOn(DateTimeUtils.toDateTimeNow());
-                                                userSessionRepository.save(old);
-                                        });
+        if (deviceId == null) {
+            deviceId = UUID.randomUUID().toString();
+        } else {
+            // Revoke session cũ của device này
+            userSessionRepository.findByDeviceId(deviceId, user, StatusEntity.ACT.toString())
+                    .ifPresent(old -> {
+                        old.setStatus(StatusEntity.REVOK.toString());
+                        old.setRevokedOn(DateTimeUtils.toDateTimeNow());
+                        userSessionRepository.save(old);
+                    });
 
-                }
-
-                // 2. Tạo token và lưu Cookie
-                String accessToken = jwtService.generateToken(user, TypeJwt.ACCESS);
-                String refreshToken = jwtService.generateToken(user, TypeJwt.REFRESH);
-
-                CookieUtils.addCookie(response, NameTypeToken.accessToken.name(), accessToken,
-                                (int) (accessExpiration / 1000),
-                                cookieSecure);
-                CookieUtils.addCookie(response, NameTypeToken.refreshToken.name(), refreshToken,
-                                (int) (refreshExpiration / 1000), cookieSecure);
-
-                // 3. Quản lý Session
-                UserSession session = UserSession.builder()
-                                .user(user)
-                                .refreshToken(refreshToken)
-                                .sessionToken(accessToken)
-                                .deviceId(deviceId)
-                                .deviceInfo(DeviceInfoUtils.parse(request.getHeader("User-Agent")).toString())
-                                .userAgent(request.getHeader("User-Agent"))
-                                .ipAddress(ClientInfo.getClientIp(request))
-                                .expiresAt(DateTimeUtils.toLocalDateTime(
-                                                System.currentTimeMillis() + refreshExpiration))
-                                .build();
-                userSessionRepository.save(session);
-                // 4. Redirect về Front-end (trang chủ hoặc trang mong muốn)
-                String redirectUrl = frontendUrls[0] + "/home?deviceId=" + deviceId;
-                getRedirectStrategy().sendRedirect(request, response, redirectUrl);
         }
+
+        // 2. Tạo token và lưu Cookie
+        String accessToken = jwtService.generateToken(user, TypeJwt.ACCESS);
+        String refreshToken = jwtService.generateToken(user, TypeJwt.REFRESH);
+
+        CookieUtils.addCookie(response, NameTypeToken.accessToken.name(), accessToken,
+                (int) (accessExpiration / 1000), cookieSecure);
+        CookieUtils.addCookie(response, NameTypeToken.refreshToken.name(), refreshToken,
+                (int) (refreshExpiration / 1000), cookieSecure);
+
+        // 3. Quản lý Session
+        UserSession session = UserSession.builder().user(user).refreshToken(refreshToken)
+                .sessionToken(accessToken).deviceId(deviceId)
+                .deviceInfo(DeviceInfoUtils.parse(request.getHeader("User-Agent")).toString())
+                .userAgent(request.getHeader("User-Agent"))
+                .ipAddress(ClientInfo.getClientIp(request)).expiresAt(DateTimeUtils
+                        .toLocalDateTime(System.currentTimeMillis() + refreshExpiration))
+                .build();
+        userSessionRepository.save(session);
+        // 4. Redirect về Front-end (trang chủ hoặc trang mong muốn)
+        String redirectUrl = frontendUrls[0] + "/home?deviceId=" + deviceId;
+        getRedirectStrategy().sendRedirect(request, response, redirectUrl);
+    }
 }

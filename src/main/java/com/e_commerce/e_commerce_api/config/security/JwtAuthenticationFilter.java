@@ -34,10 +34,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final UserSessionRepository userSessionRepository;
 
     @Override
-    protected void doFilterInternal(
-            @NonNull HttpServletRequest request,
-            @NonNull HttpServletResponse response,
-            @NonNull FilterChain filterChain) throws ServletException, IOException {
+    protected void doFilterInternal(@NonNull HttpServletRequest request,
+            @NonNull HttpServletResponse response, @NonNull FilterChain filterChain)
+            throws ServletException, IOException {
 
         final String authHeader = request.getHeader("Authorization");
         String jwt = null;
@@ -68,18 +67,19 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 UserSession session = userSessionRepository.findBySessionToken(jwt).orElse(null);
                 if (session != null && StatusEntity.ACT.toString().equals(session.getStatus())) {
                     // Tạo đối tượng Authentication để báo cho Spring biết User này đã hợp lệ
-                    UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
-                            userDetails,
-                            null,
-                            userDetails.getAuthorities());
-                    authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                    UsernamePasswordAuthenticationToken authToken =
+                            new UsernamePasswordAuthenticationToken(userDetails, null,
+                                    userDetails.getAuthorities());
+                    authToken
+                            .setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
 
                     // Lưu vào Context của hệ thống
                     SecurityContextHolder.getContext().setAuthentication(authToken);
 
                     // cập nhật LastAccessedOn nếu đã quá 5 phút
-                    boolean shouldUpdate = session.getLastAccessedOn() == null ||
-                            session.getLastAccessedOn().isBefore(DateTimeUtils.toDateTimeNow().minusMinutes(5));
+                    boolean shouldUpdate =
+                            session.getLastAccessedOn() == null || session.getLastAccessedOn()
+                                    .isBefore(DateTimeUtils.toDateTimeNow().minusMinutes(5));
 
                     if (shouldUpdate) {
                         session.setLastAccessedOn(DateTimeUtils.toDateTimeNow());
@@ -94,11 +94,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) {
         String path = request.getServletPath();
-        return path.startsWith("/auth/")
-                || path.startsWith("/login/oauth2/")
-                || path.startsWith("/v3/api-docs")
-                || path.startsWith("/swagger-ui")
-                || path.startsWith("/swagger-resources")
-                || path.startsWith("/webjars");
+        return path.startsWith("/auth/") || path.startsWith("/login/oauth2/")
+                || path.startsWith("/v3/api-docs") || path.startsWith("/swagger-ui")
+                || path.startsWith("/swagger-resources") || path.startsWith("/webjars");
     }
 }

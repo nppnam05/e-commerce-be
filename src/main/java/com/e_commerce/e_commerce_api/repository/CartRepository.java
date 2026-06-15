@@ -9,5 +9,6 @@ import com.e_commerce.e_commerce_api.entity.Cart;
 @Repository
 public interface CartRepository extends JpaRepository<Cart, Long> {
     List<Cart> findByUserId(Long userId);
+
     Optional<Cart> findByUserIdAndProductId(Long userId, Long productId);
 }

@@ -20,24 +20,21 @@ public class AddressService {
     private final AddressRepository addressRepository;
     private final UserRepository userRepository;
 
-    public PageResponse<List<AddressUserProjection>> getAddressesByUserId(Long userId, int pageNumber, int pageSize) {
+    public PageResponse<List<AddressUserProjection>> getAddressesByUserId(Long userId,
+            int pageNumber, int pageSize) {
         long total = addressRepository.countByUserId(userId);
         int offset = (pageNumber - 1) * pageSize;
-        return PageResponse.mapToPageResponse(addressRepository.findByUserId(userId, pageSize, offset), pageNumber,
-                pageSize, total);
+        return PageResponse.mapToPageResponse(
+                addressRepository.findByUserId(userId, pageSize, offset), pageNumber, pageSize,
+                total);
     }
 
     public Boolean createAddress(Long userId, CreateAddressRequest request) {
         var user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
-        var address = Address.builder()
-                .isDefault(request.getIsDefault())
-                .street(request.getStreet())
-                .district(request.getDistrict())
-                .ward(request.getWard())
-                .city(request.getCity())
-                .user(user)
-                .build();
+        var address = Address.builder().isDefault(request.getIsDefault())
+                .street(request.getStreet()).district(request.getDistrict()).ward(request.getWard())
+                .city(request.getCity()).user(user).build();
         addressRepository.save(address);
         return true;
     }

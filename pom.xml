@@ -177,6 +177,15 @@
                     </annotationProcessorPaths>
                 </configuration>
             </plugin>
+
+            <plugin>
+                <groupId>net.revelc.code.formatter</groupId>
+                <artifactId>formatter-maven-plugin</artifactId>
+                <version>2.23.0</version>
+                <configuration>
+                    <configFile>${project.basedir}/.vscode/eclipse-java-google-style.xml</configFile>
+                </configuration>
+            </plugin>
         </plugins>
     </build>
 

@@ -10,5 +10,6 @@ import com.e_commerce.e_commerce_api.entity.ProductImage;
 @Repository
 public interface ProductImageRepository extends JpaRepository<ProductImage, Long> {
     List<ProductImage> findByProductId(Long productId);
+
     void deleteAllByProduct(Product product);
 }

@@ -12,11 +12,8 @@ public class CookieUtils {
     public static String getCookieValue(HttpServletRequest request, String name) {
         if (request.getCookies() == null)
             return null;
-        return Arrays.stream(request.getCookies())
-                .filter(c -> c.getName().equals(name))
-                .map(Cookie::getValue)
-                .findFirst()
-                .orElse(null);
+        return Arrays.stream(request.getCookies()).filter(c -> c.getName().equals(name))
+                .map(Cookie::getValue).findFirst().orElse(null);
     }
 
     // Secure được truyền từ ngoài vào (profile-based: false=dev, true=prod).
@@ -32,7 +29,8 @@ public class CookieUtils {
     }
 
     // cookie với đầy đủ bảo mật: HttpOnly, SameSite=Strict.
-    private static String buildCookieHeader(String name, String value, int maxAgeSeconds, boolean secure) {
+    private static String buildCookieHeader(String name, String value, int maxAgeSeconds,
+            boolean secure) {
         StringBuilder sb = new StringBuilder();
         sb.append(name).append("=").append(value);
         sb.append("; Max-Age=").append(maxAgeSeconds);

@@ -22,10 +22,7 @@ public class ColorController {
 
     @GetMapping
     public ResponseEntity<ApiResponse<List<ColorResponse>>> getAllColors() {
-        return ResponseEntity.ok(ApiResponse.success(
-                colorService.getAllColors(),
-                "Get all colors successfully",
-                200
-        ));
+        return ResponseEntity.ok(ApiResponse.success(colorService.getAllColors(),
+                "Get all colors successfully", 200));
     }
 }

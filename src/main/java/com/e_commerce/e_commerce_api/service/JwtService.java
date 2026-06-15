@@ -48,11 +48,8 @@ public class JwtService {
     }
 
     public <T> T extractClaim(String token, Function<Claims, T> claimsResolver, TypeJwt type) {
-        final Claims claims = Jwts.parser()
-                .verifyWith(getSigningKey(type))
-                .build()
-                .parseSignedClaims(token)
-                .getPayload();
+        final Claims claims = Jwts.parser().verifyWith(getSigningKey(type)).build()
+                .parseSignedClaims(token).getPayload();
         return claimsResolver.apply(claims);
     }
 
@@ -61,27 +58,18 @@ public class JwtService {
             throw new RuntimeException("Invalid user type");
         }
 
-        long expiration = (type == TypeJwt.ACCESS)
-                ? accessExpiration
-                : refreshExpiration;
+        long expiration = (type == TypeJwt.ACCESS) ? accessExpiration : refreshExpiration;
 
-        return Jwts.builder()
-                .subject(user.getEmail())
-                .claim("id", String.valueOf(user.getId()))
-                .claim("typeToken", type.name())
-                .issuedAt(DateTimeUtils.toDateNow())
-                .expiration(DateTimeUtils.toDateExpired(expiration))
-                .signWith(getSigningKey(type))
+        return Jwts.builder().subject(user.getEmail()).claim("id", String.valueOf(user.getId()))
+                .claim("typeToken", type.name()).issuedAt(DateTimeUtils.toDateNow())
+                .expiration(DateTimeUtils.toDateExpired(expiration)).signWith(getSigningKey(type))
                 .compact();
     }
 
     public boolean isTokenValid(String token, TypeJwt type) {
         try {
-            final Claims claims = Jwts.parser()
-                    .verifyWith(getSigningKey(type))
-                    .build()
-                    .parseSignedClaims(token)
-                    .getPayload();
+            final Claims claims = Jwts.parser().verifyWith(getSigningKey(type)).build()
+                    .parseSignedClaims(token).getPayload();
 
             String tokenType = claims.get("typeToken", String.class);
             boolean isCorrectType = type.name().equals(tokenType);

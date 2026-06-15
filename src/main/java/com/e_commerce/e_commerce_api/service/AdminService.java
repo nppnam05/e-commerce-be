@@ -16,9 +16,7 @@ public class AdminService {
     public DashboardTotal getTotal() {
         TotalProjection data = userRepository.getTotal();
         return DashboardTotal.builder().totalUsers(data.getTotalUsers())
-                .totalPending(data.getTotalPending())
-                .totalSales(data.getTotalSales())
-                .totalOrders(data.getTotalOrders())
-                .build();
+                .totalPending(data.getTotalPending()).totalSales(data.getTotalSales())
+                .totalOrders(data.getTotalOrders()).build();
     }
 }

@@ -28,8 +28,9 @@ public class ProductController {
             @RequestParam(required = false) String keyword,
             @RequestParam(defaultValue = "1") int pageNumber,
             @RequestParam(defaultValue = "10") int pageSize) {
-        return ResponseEntity.ok(ApiResponse.success(productService.getProducts(keyword, pageNumber, pageSize),
-                "Get products successfully", 200));
+        return ResponseEntity
+                .ok(ApiResponse.success(productService.getProducts(keyword, pageNumber, pageSize),
+                        "Get products successfully", 200));
     }
 
     @GetMapping("/stock")
@@ -37,30 +38,35 @@ public class ProductController {
             @RequestParam(required = false) String keyword,
             @RequestParam(defaultValue = "1") int pageNumber,
             @RequestParam(defaultValue = "10") int pageSize) {
-        return ResponseEntity.ok(ApiResponse.success(productService.getProductsStock(keyword, pageNumber, pageSize),
-                "Get product stocks successfully", 200));
+        return ResponseEntity.ok(
+                ApiResponse.success(productService.getProductsStock(keyword, pageNumber, pageSize),
+                        "Get product stocks successfully", 200));
     }
 
     @PostMapping
     public ResponseEntity<ApiResponse<ProductResponse>> createProduct(
             @ModelAttribute CreateProductRequest request) {
-        return ResponseEntity.ok(ApiResponse.success(productService.createProduct(request), "Create product successfully",
-                200));
+        return ResponseEntity.ok(ApiResponse.success(productService.createProduct(request),
+                "Create product successfully", 200));
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ApiResponse<ProductDetailResponse>> getProductById(@PathVariable Long id) {
-        return ResponseEntity.ok(ApiResponse.success(productService.getProductById(id), "Get product successfully", 200));
+    public ResponseEntity<ApiResponse<ProductDetailResponse>> getProductById(
+            @PathVariable Long id) {
+        return ResponseEntity.ok(ApiResponse.success(productService.getProductById(id),
+                "Get product successfully", 200));
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<ApiResponse<Boolean>> updateProduct(@PathVariable Long id,
             @ModelAttribute UpdateProductRequest request) {
-        return ResponseEntity.ok(ApiResponse.success(productService.updateProduct(id, request), "Update product successfully", 200));
+        return ResponseEntity.ok(ApiResponse.success(productService.updateProduct(id, request),
+                "Update product successfully", 200));
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<ApiResponse<Boolean>> deleteProduct(@PathVariable Long id) {
-        return ResponseEntity.ok(ApiResponse.success(productService.deleteProduct(id), "Delete product successfully", 200));
+        return ResponseEntity.ok(ApiResponse.success(productService.deleteProduct(id),
+                "Delete product successfully", 200));
     }
 }

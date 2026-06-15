@@ -22,10 +22,7 @@ public class SizeController {
 
     @GetMapping
     public ResponseEntity<ApiResponse<List<SizeResponse>>> getAllSizes() {
-        return ResponseEntity.ok(ApiResponse.success(
-                sizeService.getAllSizes(),
-                "Get all sizes successfully",
-                200
-        ));
+        return ResponseEntity.ok(
+                ApiResponse.success(sizeService.getAllSizes(), "Get all sizes successfully", 200));
     }
 }

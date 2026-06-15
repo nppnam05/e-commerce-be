@@ -29,8 +29,7 @@ public class AuthController {
     public ResponseEntity<ApiResponse<UserResponse>> login(
             @Valid @RequestBody LoginRequest requestLogin,
             @CookieValue(name = "deviceId", required = false) String deviceId,
-            HttpServletResponse response,
-            HttpServletRequest request) {
+            HttpServletResponse response, HttpServletRequest request) {
         var data = authService.login(requestLogin, deviceId, response, request);
         return ResponseEntity.ok(ApiResponse.success(data, "Login successful", 200));
     }
@@ -39,8 +38,7 @@ public class AuthController {
     public ResponseEntity<ApiResponse<Void>> refresh(
             @CookieValue(name = "refreshToken", required = false) String refreshToken,
             @CookieValue(name = "deviceId", required = false) String deviceId,
-            HttpServletResponse response,
-            HttpServletRequest request) {
+            HttpServletResponse response, HttpServletRequest request) {
         authService.refreshToken(refreshToken, deviceId, response, request);
         return ResponseEntity.ok(ApiResponse.success(null, "Token refreshed", 200));
     }
@@ -49,14 +47,14 @@ public class AuthController {
     public ResponseEntity<ApiResponse<Void>> logout(
             @CookieValue(name = "refreshToken", required = false) String refreshToken,
             @CookieValue(name = "deviceId", required = false) String deviceId,
-            HttpServletResponse response,
-            HttpServletRequest request) {
+            HttpServletResponse response, HttpServletRequest request) {
         authService.logout(refreshToken, deviceId, response, request);
         return ResponseEntity.ok(ApiResponse.success(null, "Logout successful", 200));
     }
 
     @PostMapping("/sign-up")
-    public ResponseEntity<ApiResponse<UserResponse>> signUp(@Valid @RequestBody CreateUserRequest request) {
+    public ResponseEntity<ApiResponse<UserResponse>> signUp(
+            @Valid @RequestBody CreateUserRequest request) {
         var data = authService.signUp(request);
         return ResponseEntity.ok(ApiResponse.success(data, "Registration successful", 200));
     }

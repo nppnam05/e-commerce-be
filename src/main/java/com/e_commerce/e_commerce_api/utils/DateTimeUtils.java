@@ -15,9 +15,7 @@ public class DateTimeUtils {
     private static final ZoneId ZONE_VIETNAM = ZoneId.of("Asia/Ho_Chi_Minh");
 
     public static LocalDateTime toLocalDateTime(long milliseconds) {
-        return LocalDateTime.ofInstant(
-                Instant.ofEpochMilli(milliseconds),
-                ZONE_VIETNAM);
+        return LocalDateTime.ofInstant(Instant.ofEpochMilli(milliseconds), ZONE_VIETNAM);
     }
 
     public static LocalDateTime toDateTimeNow() {
@@ -30,8 +28,8 @@ public class DateTimeUtils {
     }
 
     public static Date toDateExpired(long millisecondsToAdd) {
-        ZonedDateTime vietnamTime = ZonedDateTime.now(ZONE_VIETNAM)
-                .plus(Duration.ofMillis(millisecondsToAdd));
+        ZonedDateTime vietnamTime =
+                ZonedDateTime.now(ZONE_VIETNAM).plus(Duration.ofMillis(millisecondsToAdd));
 
         return Date.from(vietnamTime.toInstant());
     }

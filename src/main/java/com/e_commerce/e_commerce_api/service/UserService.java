@@ -17,19 +17,12 @@ public class UserService {
     public UserResponse getMe(Long id) {
         var user = userRepository.findByIdWithRole(id)
                 .orElseThrow(() -> new NotFoundException("User not found"));
-        var userResponse = UserResponse.builder()
-                .id(user.getId())
-                .roleName(user.getRole().getName())
-                .phone(user.getPhone())
-                .email(user.getEmail())
-                .displayName(user.getDisplayName())
-                .status(user.getStatus())
-                .createdOn(user.getCreatedOn())
-                .createdBy(user.getCreatedBy())
-                .modifiedOn(user.getModifiedOn())
-                .modifiedBy(user.getModifiedBy())
-                .avatar(user.getAvatar())
-                .build();
+        var userResponse = UserResponse.builder().id(user.getId())
+                .roleName(user.getRole().getName()).phone(user.getPhone()).email(user.getEmail())
+                .displayName(user.getDisplayName()).status(user.getStatus())
+                .createdOn(user.getCreatedOn()).createdBy(user.getCreatedBy())
+                .modifiedOn(user.getModifiedOn()).modifiedBy(user.getModifiedBy())
+                .avatar(user.getAvatar()).build();
 
         return userResponse;
     }

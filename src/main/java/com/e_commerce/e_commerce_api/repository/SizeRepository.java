@@ -8,5 +8,6 @@ import com.e_commerce.e_commerce_api.entity.Size;
 @Repository
 public interface SizeRepository extends JpaRepository<Size, Long> {
     Optional<Size> findByName(String name);
+
     boolean existsByName(String name);
 }

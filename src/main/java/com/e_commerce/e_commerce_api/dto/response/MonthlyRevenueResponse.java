@@ -27,7 +27,7 @@ public class MonthlyRevenueResponse {
                 MonthlyRevenueResponse.builder().month("Tháng 9").revenue(BigDecimal.ZERO).build(),
                 MonthlyRevenueResponse.builder().month("Tháng 10").revenue(BigDecimal.ZERO).build(),
                 MonthlyRevenueResponse.builder().month("Tháng 11").revenue(BigDecimal.ZERO).build(),
-                MonthlyRevenueResponse.builder().month("Tháng 12").revenue(BigDecimal.ZERO).build()
-        );
+                MonthlyRevenueResponse.builder().month("Tháng 12").revenue(BigDecimal.ZERO)
+                        .build());
     }
 }
