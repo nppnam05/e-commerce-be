@@ -7,17 +7,21 @@ import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import com.e_commerce.e_commerce_api.dto.request.order.CreateOrderRequest;
 import com.e_commerce.e_commerce_api.dto.response.MonthlyRevenueResponse;
 import com.e_commerce.e_commerce_api.dto.response.OrderDetailResponse;
 import com.e_commerce.e_commerce_api.dto.response.OrderResponse;
 import com.e_commerce.e_commerce_api.dto.response.OrderUserResponse;
 import com.e_commerce.e_commerce_api.dto.response.base.ApiResponse;
 import com.e_commerce.e_commerce_api.dto.response.base.PageResponse;
+import com.e_commerce.e_commerce_api.entity.Order;
 import com.e_commerce.e_commerce_api.service.OrderService;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 
 @RestController
 @RequestMapping("/order")
@@ -27,8 +31,7 @@ public class OrderController {
 
     @GetMapping
     public ResponseEntity<ApiResponse<PageResponse<List<OrderResponse>>>> getOrders(
-            @RequestParam(required = false)
-            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dateTime,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dateTime,
             @RequestParam(required = false) String status,
             @RequestParam(defaultValue = "1") int pageNumber,
             @RequestParam(defaultValue = "10") int pageSize) {
@@ -57,6 +60,11 @@ public class OrderController {
             @RequestParam String status) {
         return ResponseEntity.ok(ApiResponse.success(orderService.updateOrderStatus(id, status),
                 "Order status updated successfully", 200));
+    }
+
+    @PostMapping()
+    public ResponseEntity<ApiResponse<OrderResponse>> postMethodName(@RequestBody CreateOrderRequest request) {
+        return ResponseEntity.ok(ApiResponse.success(orderService.createOrder(request), "Create order success", 200));
     }
 
     @GetMapping("/revenue/monthly")

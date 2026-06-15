@@ -11,11 +11,6 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 public class UpdateCartRequest {
-    @NotNull(message = "User ID is required")
-    private Long userId;
-
-    @NotNull(message = "Product ID is required")
-    private Long productId;
 
     @NotNull(message = "Quantity is required")
     @Positive(message = "Quantity must be positive")
