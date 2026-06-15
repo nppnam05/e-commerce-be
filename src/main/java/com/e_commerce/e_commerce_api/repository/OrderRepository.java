@@ -36,8 +36,8 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
             LIMIT :pageSize
             OFFSET :offset
                                                 """, nativeQuery = true)
-    List<OrderUserProjection> findOrdersByUserId(@Param("userId") Long userId, @Param("pageSize") int pageSize,
-            @Param("offset") int offset);
+    List<OrderUserProjection> findOrdersByUserId(@Param("userId") Long userId,
+            @Param("pageSize") int pageSize, @Param("offset") int offset);
 
     @Query(value = """
             SELECT COUNT(*)
@@ -66,9 +66,8 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
             LIMIT :pageSize
             OFFSET :offset
                                                 """, nativeQuery = true)
-    List<OrderProjection> findAllOrder(
-            @Param("dateTime") LocalDate dateTime, @Param("status") String status,
-            @Param("pageSize") int pageSize,
+    List<OrderProjection> findAllOrder(@Param("dateTime") LocalDate dateTime,
+            @Param("status") String status, @Param("pageSize") int pageSize,
             @Param("offset") int offset);
 
     @Query(value = """
@@ -124,6 +123,7 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
                                         FROM "sales"."orders" o
                                        WHERE (CAST(:dateTime AS date) IS NULL OR CAST(o."CreatedOn" AS date) = :dateTime)
             AND (CAST(:status AS varchar) IS NULL OR o."Status" = :status)
-                                        """, nativeQuery = true)
+                                        """,
+            nativeQuery = true)
     long countOrders(@Param("dateTime") LocalDate dateTime, @Param("status") String status);
 }

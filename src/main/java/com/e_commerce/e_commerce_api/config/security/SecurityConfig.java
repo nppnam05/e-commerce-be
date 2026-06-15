@@ -18,55 +18,49 @@ import lombok.RequiredArgsConstructor;
 @Configuration
 @RequiredArgsConstructor
 public class SecurityConfig {
-        private final JwtAuthenticationFilter jwtAuthFilter;
-        private final AuthEntryPoint authEntryPoint;
-        private final CustomAccessDeniedHandler accessDeniedHandler;
-        private final OAuth2SuccessHandler oauth2SuccessHandler;
+    private final JwtAuthenticationFilter jwtAuthFilter;
+    private final AuthEntryPoint authEntryPoint;
+    private final CustomAccessDeniedHandler accessDeniedHandler;
+    private final OAuth2SuccessHandler oauth2SuccessHandler;
 
-        @Value("${app.cors.allowed-origins}")
-        private String[] allowedOrigins;
+    @Value("${app.cors.allowed-origins}")
+    private String[] allowedOrigins;
 
-        @Bean
-        public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-                http
-                                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
-                                .csrf(csrf -> csrf.disable())
-                                .sessionManagement(session -> session
-                                                .sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // JWT không
-                                                                                                         // dùng session
+    @Bean
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        http.cors(cors -> cors.configurationSource(corsConfigurationSource()))
+                .csrf(csrf -> csrf.disable())
+                .sessionManagement(
+                        session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // JWT
+                                                                                                   // không
+                                                                                                   // dùng
+                                                                                                   // session
 
-                                .authorizeHttpRequests(auth -> auth
-                                                .requestMatchers("/auth/**").permitAll() // public endpoints
-                                                .requestMatchers("/login/oauth2/**").permitAll()
-                                                // TODO: Lưu ý, sau chỉ triển khai cái này trên môi trường Local
-                                                .requestMatchers(
-                                                                "/v3/api-docs/**",
-                                                                "/swagger-ui/**",
-                                                                "/swagger-ui.html",
-                                                                "/swagger-resources/**",
-                                                                "/webjars/**")
-                                                .permitAll()
-                                                .requestMatchers("/admin/**").hasRole("ADMIN")
-                                                .anyRequest().authenticated()) // còn lại phải có JWT
-                                .oauth2Login(oauth2 -> oauth2
-                                                .successHandler(oauth2SuccessHandler))
-                                .exceptionHandling(ex -> ex
-                                                .authenticationEntryPoint(authEntryPoint) // ← 401
-                                                .accessDeniedHandler(accessDeniedHandler))
-                                .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
-                return http.build();
-        }
+                .authorizeHttpRequests(auth -> auth.requestMatchers("/auth/**").permitAll() // public
+                                                                                            // endpoints
+                        .requestMatchers("/login/oauth2/**").permitAll()
+                        // TODO: Lưu ý, sau chỉ triển khai cái này trên môi trường Local
+                        .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html",
+                                "/swagger-resources/**", "/webjars/**")
+                        .permitAll().requestMatchers("/admin/**").hasRole("ADMIN").anyRequest()
+                        .authenticated()) // còn lại phải có JWT
+                .oauth2Login(oauth2 -> oauth2.successHandler(oauth2SuccessHandler))
+                .exceptionHandling(ex -> ex.authenticationEntryPoint(authEntryPoint) // ← 401
+                        .accessDeniedHandler(accessDeniedHandler))
+                .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
+        return http.build();
+    }
 
-        @Bean
-        public CorsConfigurationSource corsConfigurationSource() {
-                CorsConfiguration config = new CorsConfiguration();
-                config.setAllowedOrigins(List.of(allowedOrigins));
-                config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-                config.setAllowedHeaders(List.of("*"));
-                config.setAllowCredentials(true);
+    @Bean
+    public CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration config = new CorsConfiguration();
+        config.setAllowedOrigins(List.of(allowedOrigins));
+        config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        config.setAllowedHeaders(List.of("*"));
+        config.setAllowCredentials(true);
 
-                UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-                source.registerCorsConfiguration("/**", config);
-                return source;
-        }
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", config);
+        return source;
+    }
 }

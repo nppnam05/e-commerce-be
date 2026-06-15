@@ -16,18 +16,16 @@ import lombok.RequiredArgsConstructor;
 public class FavoriteService {
     private final FavoriteRepository favoriteRepository;
 
-    public PageResponse<List<FavoriteProductResponse>> getAllFavouritesByUserId(Long userId, int pageNumber, int pageSize) {
+    public PageResponse<List<FavoriteProductResponse>> getAllFavouritesByUserId(Long userId,
+            int pageNumber, int pageSize) {
         int offset = (pageNumber - 1) * pageSize;
-        List<FavoriteProductProjection> result = favoriteRepository.findByUserId(userId, pageSize, offset);
+        List<FavoriteProductProjection> result =
+                favoriteRepository.findByUserId(userId, pageSize, offset);
 
         List<FavoriteProductResponse> data = result.stream()
-                .map(p -> (FavoriteProductResponse) FavoriteProductResponse.builder()
-                        .id(p.getId())
-                        .productId(p.getProductId())
-                        .name(p.getName())
-                        .price(p.getPrice())
-                        .imageUrls(p.getImageUrls() != null
-                                ? List.of(p.getImageUrls().split(","))
+                .map(p -> (FavoriteProductResponse) FavoriteProductResponse.builder().id(p.getId())
+                        .productId(p.getProductId()).name(p.getName()).price(p.getPrice())
+                        .imageUrls(p.getImageUrls() != null ? List.of(p.getImageUrls().split(","))
                                 : List.of())
                         .build())
                 .toList();
@@ -37,7 +35,7 @@ public class FavoriteService {
         return PageResponse.mapToPageResponse(data, pageNumber, pageSize, total);
     }
 
-    public Boolean deleteFavorite(Long id){
+    public Boolean deleteFavorite(Long id) {
         var favorite = favoriteRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Favorite not found"));
         favoriteRepository.delete(favorite);

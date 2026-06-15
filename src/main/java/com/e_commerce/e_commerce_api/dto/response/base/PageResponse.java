@@ -16,7 +16,9 @@ public class PageResponse<T> {
     private int totalPages;
     private T data;
 
-    public static <T> PageResponse<T> mapToPageResponse(T data, int pageNumber, int pageSize, long total) {
-        return new PageResponse<>(pageNumber, pageSize, total, (int) Math.ceil((double) total / pageSize), data);
+    public static <T> PageResponse<T> mapToPageResponse(T data, int pageNumber, int pageSize,
+            long total) {
+        return new PageResponse<>(pageNumber, pageSize, total,
+                (int) Math.ceil((double) total / pageSize), data);
     }
 }

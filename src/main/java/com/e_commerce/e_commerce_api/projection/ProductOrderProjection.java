@@ -4,11 +4,18 @@ import java.math.BigDecimal;
 
 public interface ProductOrderProjection {
     Long getId();
+
     BigDecimal getPrice();
+
     Integer getQuantity();
+
     String getName();
+
     String getImageUrls();
+
     String getCategory();
+
     String getSize();
+
     String getColorCode();
 }

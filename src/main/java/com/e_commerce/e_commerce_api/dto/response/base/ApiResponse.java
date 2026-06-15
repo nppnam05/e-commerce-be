@@ -22,20 +22,12 @@ public class ApiResponse<T> {
     private Object errors;
 
     public static <T> ApiResponse<T> success(T data, String message, int statusCode) {
-        return ApiResponse.<T>builder()
-                .succeeded(true)
-                .message(message)
-                .statusCode(statusCode)
-                .data(data)
-                .build();
+        return ApiResponse.<T>builder().succeeded(true).message(message).statusCode(statusCode)
+                .data(data).build();
     }
 
     public static <T> ApiResponse<T> error(String message, int statusCode, Object errors) {
-        return ApiResponse.<T>builder()
-                .succeeded(false)
-                .message(message)
-                .statusCode(statusCode)
-                .errors(errors)
-                .build();
+        return ApiResponse.<T>builder().succeeded(false).message(message).statusCode(statusCode)
+                .errors(errors).build();
     }
 }

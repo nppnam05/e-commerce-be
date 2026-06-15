@@ -16,14 +16,14 @@ import jakarta.servlet.http.HttpServletResponse;
 public class CustomAccessDeniedHandler implements AccessDeniedHandler {
 
     @Override
-    public void handle(HttpServletRequest request,
-            HttpServletResponse response,
+    public void handle(HttpServletRequest request, HttpServletResponse response,
             AccessDeniedException accessDeniedException) throws IOException {
 
         response.setContentType("application/json");
         response.setStatus(HttpServletResponse.SC_FORBIDDEN);
 
-        ApiResponse<Void> body = ApiResponse.error("Forbidden: You don't have permission", 403, null);
+        ApiResponse<Void> body =
+                ApiResponse.error("Forbidden: You don't have permission", 403, null);
 
         new ObjectMapper().writeValue(response.getOutputStream(), body);
     }

@@ -31,10 +31,11 @@ public class AddressController {
 
     @GetMapping("/user/{userId}")
     public ResponseEntity<ApiResponse<PageResponse<List<AddressUserProjection>>>> getAddressesByUserId(
-            @PathVariable Long userId,
-            @RequestParam(defaultValue = "1") int pageNumber, @RequestParam(defaultValue = "10") int pageSize) {
+            @PathVariable Long userId, @RequestParam(defaultValue = "1") int pageNumber,
+            @RequestParam(defaultValue = "10") int pageSize) {
         return ResponseEntity.ok(ApiResponse.success(
-                addressService.getAddressesByUserId(userId, pageNumber, pageSize), "Get addresses successfully", 200));
+                addressService.getAddressesByUserId(userId, pageNumber, pageSize),
+                "Get addresses successfully", 200));
     }
 
     @PostMapping("/{userId}")
@@ -45,7 +46,8 @@ public class AddressController {
     }
 
     @PutMapping()
-    public ResponseEntity<ApiResponse<Boolean>> updateAddress(@RequestBody UpdateAddressRequest request) {
+    public ResponseEntity<ApiResponse<Boolean>> updateAddress(
+            @RequestBody UpdateAddressRequest request) {
         return ResponseEntity.ok(ApiResponse.success(addressService.updateAddress(request),
                 "Address updated successfully", 200));
     }

@@ -8,6 +8,8 @@ import com.e_commerce.e_commerce_api.entity.Color;
 @Repository
 public interface ColorRepository extends JpaRepository<Color, Long> {
     Optional<Color> findByName(String name);
+
     Optional<Color> findByColorCode(String colorCode);
+
     boolean existsByName(String name);
 }

@@ -20,12 +20,11 @@ public class FavoriteController {
 
     @GetMapping("/user/{userId}")
     public ResponseEntity<ApiResponse<PageResponse<List<FavoriteProductResponse>>>> getFavouritesByUserId(
-            @PathVariable Long userId,
-            @RequestParam(defaultValue = "1") int pageNumber,
+            @PathVariable Long userId, @RequestParam(defaultValue = "1") int pageNumber,
             @RequestParam(defaultValue = "10") int pageSize) {
-        return ResponseEntity
-                .ok(ApiResponse.success(favoriteService.getAllFavouritesByUserId(userId, pageNumber, pageSize),
-                        "Get favorites successfully", 200));
+        return ResponseEntity.ok(ApiResponse.success(
+                favoriteService.getAllFavouritesByUserId(userId, pageNumber, pageSize),
+                "Get favorites successfully", 200));
     }
 
     @DeleteMapping("/delete/{id}")

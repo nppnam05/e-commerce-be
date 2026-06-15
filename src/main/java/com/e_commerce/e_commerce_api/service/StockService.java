@@ -19,6 +19,7 @@ public class StockService {
         stockRepository.save(stock);
         return true;
     }
+
     public boolean deleteStock(Long id) {
         stockRepository.deleteById(id);
         return true;

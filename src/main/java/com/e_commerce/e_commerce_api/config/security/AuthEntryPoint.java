@@ -17,13 +17,13 @@ public class AuthEntryPoint implements AuthenticationEntryPoint {
 
     @Override
     public void commence(HttpServletRequest request, HttpServletResponse response,
-            AuthenticationException authException)
-            throws IOException {
+            AuthenticationException authException) throws IOException {
 
         response.setContentType("application/json");
         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
 
-        ApiResponse<Void> body = ApiResponse.error("Unauthorized: Invalid or expired token", 401, null);
+        ApiResponse<Void> body =
+                ApiResponse.error("Unauthorized: Invalid or expired token", 401, null);
 
         new ObjectMapper().writeValue(response.getOutputStream(), body);
     }

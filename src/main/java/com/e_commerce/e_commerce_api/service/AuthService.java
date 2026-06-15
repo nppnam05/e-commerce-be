@@ -57,8 +57,8 @@ public class AuthService {
     private boolean cookieSecure;
 
     @Transactional(dontRollbackOn = LoginFailedException.class)
-    public UserResponse login(LoginRequest requestLogin, String deviceIdClient, HttpServletResponse response,
-            HttpServletRequest request) {
+    public UserResponse login(LoginRequest requestLogin, String deviceIdClient,
+            HttpServletResponse response, HttpServletRequest request) {
         var user = userRepository.findByEmail(requestLogin.getEmail())
                 .orElseThrow(() -> new NotFoundException("User not found"));
 
@@ -69,8 +69,9 @@ public class AuthService {
         }
 
         try {
-            Authentication authResult = authenticationManager.authenticate(
-                    new UsernamePasswordAuthenticationToken(requestLogin.getEmail(), requestLogin.getPassword()));
+            Authentication authResult =
+                    authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(
+                            requestLogin.getEmail(), requestLogin.getPassword()));
             // Set vào SecurityContext
             SecurityContextHolder.getContext().setAuthentication(authResult);
 
@@ -89,8 +90,7 @@ public class AuthService {
             } else {
                 deviceId = deviceIdClient;
                 UserSession oldSession = userSessionRepository
-                        .findByDeviceId(deviceId, user, StatusEntity.ACT.toString())
-                        .orElse(null);
+                        .findByDeviceId(deviceId, user, StatusEntity.ACT.toString()).orElse(null);
                 if (oldSession != null) {
                     oldSession.setStatus(StatusEntity.REVOK.toString());
                     oldSession.setRevokedOn(DateTimeUtils.toDateTimeNow());
@@ -98,32 +98,23 @@ public class AuthService {
                 }
             }
 
-            UserSession session = UserSession.builder()
-                    .user(user)
-                    .refreshToken(refreshToken)
-                    .sessionToken(accessToken)
-                    .deviceId(deviceId)
+            UserSession session = UserSession.builder().user(user).refreshToken(refreshToken)
+                    .sessionToken(accessToken).deviceId(deviceId)
                     .deviceInfo(DeviceInfoUtils.parse(request.getHeader("User-Agent")).toString())
                     .userAgent(request.getHeader("User-Agent"))
                     .ipAddress(ClientInfo.getClientIp(request))
-                    .expiresAt(DateTimeUtils.toLocalDateTime(System.currentTimeMillis() + refreshExpiration))
+                    .expiresAt(DateTimeUtils
+                            .toLocalDateTime(System.currentTimeMillis() + refreshExpiration))
                     .build();
             userSessionRepository.save(session);
 
-            var userResponse = UserResponse.builder()
-                    .id(user.getId())
-                    .roleName(user.getRole().getName())
-                    .phone(user.getPhone())
-                    .email(user.getEmail())
-                    .displayName(user.getDisplayName())
-                    .status(user.getStatus())
-                    .createdOn(user.getCreatedOn())
-                    .createdBy(user.getCreatedBy())
-                    .modifiedOn(user.getModifiedOn())
-                    .modifiedBy(user.getModifiedBy())
-                    .avatar(user.getAvatar())
-                    .deviceId(deviceId)
-                    .build();
+            var userResponse =
+                    UserResponse.builder().id(user.getId()).roleName(user.getRole().getName())
+                            .phone(user.getPhone()).email(user.getEmail())
+                            .displayName(user.getDisplayName()).status(user.getStatus())
+                            .createdOn(user.getCreatedOn()).createdBy(user.getCreatedBy())
+                            .modifiedOn(user.getModifiedOn()).modifiedBy(user.getModifiedBy())
+                            .avatar(user.getAvatar()).deviceId(deviceId).build();
 
             return userResponse;
 
@@ -141,8 +132,8 @@ public class AuthService {
     }
 
     @Transactional
-    public void refreshToken(String refreshToken, String deviceIdClient, HttpServletResponse response,
-            HttpServletRequest request) {
+    public void refreshToken(String refreshToken, String deviceIdClient,
+            HttpServletResponse response, HttpServletRequest request) {
         if (refreshToken == null || !jwtService.isTokenValid(refreshToken, TypeJwt.REFRESH)) {
             throw new UnauthorizedException("Invalid or expired refresh token");
         }
@@ -151,7 +142,8 @@ public class AuthService {
         var user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new UnauthorizedException("User not found"));
 
-        UserSession oldSession = userSessionRepository.findByDeviceId(deviceIdClient, user, StatusEntity.ACT.toString())
+        UserSession oldSession = userSessionRepository
+                .findByDeviceId(deviceIdClient, user, StatusEntity.ACT.toString())
                 .orElseThrow(() -> new UnauthorizedException("Token has been revoked or used"));
 
         if (StatusEntity.REVOK.toString().equals(oldSession.getStatus())) {
@@ -172,16 +164,14 @@ public class AuthService {
         oldSession.setStatus(StatusEntity.REVOK.toString());
         userSessionRepository.save(oldSession);
 
-        UserSession newUsSession = UserSession.builder()
-                .user(user)
-                .refreshToken(newRefreshToken)
-                .sessionToken(newAccessToken)
-                .deviceId(deviceIdClient)
-                .deviceInfo(oldSession.getDeviceInfo())
-                .userAgent(oldSession.getUserAgent())
-                .ipAddress(oldSession.getIpAddress())
-                .expiresAt(DateTimeUtils.toLocalDateTime(System.currentTimeMillis() + refreshExpiration))
-                .build();
+        UserSession newUsSession =
+                UserSession.builder().user(user).refreshToken(newRefreshToken)
+                        .sessionToken(newAccessToken).deviceId(deviceIdClient)
+                        .deviceInfo(oldSession.getDeviceInfo()).userAgent(oldSession.getUserAgent())
+                        .ipAddress(oldSession.getIpAddress())
+                        .expiresAt(DateTimeUtils
+                                .toLocalDateTime(System.currentTimeMillis() + refreshExpiration))
+                        .build();
         userSessionRepository.save(newUsSession);
     }
 
@@ -192,7 +182,8 @@ public class AuthService {
             if (refreshToken != null && jwtService.isTokenValid(refreshToken, TypeJwt.REFRESH)) {
                 String email = jwtService.extractSubject(refreshToken, TypeJwt.REFRESH);
                 userRepository.findByEmail(email).ifPresent(user -> {
-                    userSessionRepository.findByDeviceId(deviceIdClient, user, StatusEntity.ACT.toString())
+                    userSessionRepository
+                            .findByDeviceId(deviceIdClient, user, StatusEntity.ACT.toString())
                             .ifPresent(session -> {
                                 session.setStatus(StatusEntity.REVOK.toString());
                                 session.setRevokedOn(DateTimeUtils.toDateTimeNow());
