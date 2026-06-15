@@ -11,4 +11,7 @@ import lombok.*;
 public class CreateOrderRequest {
     @NotNull(message = "User ID is required")
     private Long userId;
+
+    @NotNull(message = "User not select address")
+    private Long addressId;
 }

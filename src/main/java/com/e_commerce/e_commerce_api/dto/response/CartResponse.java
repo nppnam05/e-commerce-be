@@ -12,10 +12,11 @@ import lombok.experimental.SuperBuilder;
 @Setter
 @SuperBuilder
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class CartResponse extends BaseResponse {
+public class CartResponse {
     private Long id;
     private Long userId;
     private Long productId;
     private Integer quantity;
     private BigDecimal singlePrice;
+    private ProductOfCartResponse product;
 }

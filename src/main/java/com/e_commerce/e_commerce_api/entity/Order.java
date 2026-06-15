@@ -1,5 +1,6 @@
 package com.e_commerce.e_commerce_api.entity;
 
+import java.math.BigDecimal;
 import java.util.List;
 import jakarta.persistence.*;
 import lombok.*;
@@ -30,10 +31,10 @@ public class Order extends BaseEntity {
     private String code;
 
     @Column(name = "TotalQuantity")
-    private int totalQuantity;
+    private Integer totalQuantity;
 
     @Column(name = "TotalPrice")
-    private double totalPrice;
+    private BigDecimal totalPrice;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "UserId", nullable = false)
