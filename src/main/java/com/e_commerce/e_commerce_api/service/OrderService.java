@@ -36,7 +36,6 @@ import com.e_commerce.e_commerce_api.repository.ProductRepository;
 import com.e_commerce.e_commerce_api.repository.UserRepository;
 import com.e_commerce.e_commerce_api.utils.ExceptionGenerator;
 
-import kotlin.reflect.jvm.internal.impl.load.java.lazy.descriptors.LazyJavaPackageScope.KotlinClassLookupResult.NotFound;
 import lombok.RequiredArgsConstructor;
 
 @Service
