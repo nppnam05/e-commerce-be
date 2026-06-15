@@ -12,11 +12,39 @@ import com.e_commerce.e_commerce_api.entity.Order;
 import com.e_commerce.e_commerce_api.projection.MonthlyRevenueProjection;
 import com.e_commerce.e_commerce_api.projection.OrderDetailProjection;
 import com.e_commerce.e_commerce_api.projection.OrderProjection;
+import com.e_commerce.e_commerce_api.projection.OrderUserProjection;
 import com.e_commerce.e_commerce_api.projection.ProductOrderProjection;
 
 @Repository
 public interface OrderRepository extends JpaRepository<Order, Long> {
-    List<Order> findByUserId(Long userId);
+    @Query(value = """
+            SELECT
+                o."Id" AS "id",
+                o."Status" AS "status",
+                o."Code" AS "code",
+                o."CreatedOn" AS "createdOn",
+                o."TotalQuantity" AS "totalQuantity",
+                o."TotalPrice" AS "totalPrice",
+                a."Street" AS "street",
+                a."Ward" AS "ward",
+                a."District" AS "district",
+                a."City" AS "city"
+            FROM "sales"."orders" o
+            LEFT JOIN "identity"."addresses" a ON o."AddressId" = a."Id"
+            WHERE o."UserId" = :userId
+            ORDER BY o."CreatedOn" DESC
+            LIMIT :pageSize
+            OFFSET :offset
+                                                """, nativeQuery = true)
+    List<OrderUserProjection> findOrdersByUserId(@Param("userId") Long userId, @Param("pageSize") int pageSize,
+            @Param("offset") int offset);
+
+    @Query(value = """
+            SELECT COUNT(*)
+            FROM "sales"."orders" o
+            WHERE o."UserId" = :userId
+            """, nativeQuery = true)
+    long countOrdersByUserId(@Param("userId") Long userId);
 
     @Query(value = """
             SELECT
@@ -25,9 +53,13 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
                 o."Code" AS "code",
                 o."CreatedOn" AS "createdOn",
                 u."DisplayName" AS "customerName",
-                o."Address" AS "address"
+                a."Street" AS "street",
+                a."Ward" AS "ward",
+                a."District" AS "district",
+                a."City" AS "city"
             FROM "sales"."orders" o
             LEFT JOIN "identity"."users" u ON o."UserId" = u."Id"
+            LEFT JOIN "identity"."addresses" a ON o."AddressId" = a."Id"
             WHERE (CAST(:dateTime AS date) IS NULL OR CAST(o."CreatedOn" AS date) = :dateTime)
                 AND (CAST(:status AS varchar) IS NULL OR o."Status" = :status)
             ORDER BY o."CreatedOn" DESC
@@ -55,14 +87,18 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
     @Query(value = """
             SELECT
                 o."Id" AS "id", o."Status" AS "status", o."Code" AS "code",
-                o."CreatedOn" AS "createdOn", o."Address" AS "address",
+                o."CreatedOn" AS "createdOn", a."Street" AS "street",
+                a."Ward" AS "ward",
+                a."District" AS "district",
+                a."City" AS "city",
                 u."DisplayName" AS "customerName",
                 SUM(op."SinglePrice" * op."Quantity") AS "totalAmount"
             FROM "sales"."orders" o
             LEFT JOIN "identity"."users" u ON o."UserId" = u."Id"
+            LEFT JOIN "identity"."addresses" a ON o."AddressId" = a."Id"
             LEFT JOIN "sales"."order_products" op ON o."Id" = op."OrderId"
             WHERE o."Id" = :id
-            GROUP BY o."Id", u."Id"
+            GROUP BY o."Id", u."Id", a."Street", a."Ward", a."District", a."City"
             """, nativeQuery = true)
     Optional<OrderDetailProjection> findOrderDetailById(@Param("id") Long id);
 

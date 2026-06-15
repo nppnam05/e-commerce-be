@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.*;
 import com.e_commerce.e_commerce_api.dto.response.MonthlyRevenueResponse;
 import com.e_commerce.e_commerce_api.dto.response.OrderDetailResponse;
 import com.e_commerce.e_commerce_api.dto.response.OrderResponse;
+import com.e_commerce.e_commerce_api.dto.response.OrderUserResponse;
 import com.e_commerce.e_commerce_api.dto.response.base.ApiResponse;
 import com.e_commerce.e_commerce_api.dto.response.base.PageResponse;
 import com.e_commerce.e_commerce_api.service.OrderService;
@@ -32,6 +33,15 @@ public class OrderController {
             @RequestParam(defaultValue = "10") int pageSize) {
         return ResponseEntity.ok(ApiResponse.success(orderService.getOrders(dateTime, status, pageNumber, pageSize),
                 "Get orders successfully", 200));
+    }
+
+    @GetMapping("/user/{userId}")
+    public ResponseEntity<ApiResponse<PageResponse<List<OrderUserResponse>>>> getUserOrders(
+            @PathVariable Long userId,
+            @RequestParam(defaultValue = "1") int pageNumber,
+            @RequestParam(defaultValue = "10") int pageSize) {
+        return ResponseEntity.ok(ApiResponse.success(orderService.getOrdersByUserId(userId, pageNumber, pageSize),
+                "Get user orders successfully", 200));
     }
 
     @GetMapping("/{id}")

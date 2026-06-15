@@ -113,6 +113,7 @@ public class AuthService {
             var userResponse = UserResponse.builder()
                     .id(user.getId())
                     .roleName(user.getRole().getName())
+                    .phone(user.getPhone())
                     .email(user.getEmail())
                     .displayName(user.getDisplayName())
                     .status(user.getStatus())

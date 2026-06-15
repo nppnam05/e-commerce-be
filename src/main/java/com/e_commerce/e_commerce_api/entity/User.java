@@ -41,9 +41,6 @@ public class User extends BaseEntity implements UserDetails {
     @Column(length = 20, name = "Phone")
     private String phone;
 
-    @Column(length = 200, name = "Location")
-    private String location;
-
     @Column(length = 500, name = "PasswordHash")
     private String passwordHash;
 
@@ -62,6 +59,12 @@ public class User extends BaseEntity implements UserDetails {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "RoleId")
     private Role role;
+
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
+    private List<Favorite> favorites;
+
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
+    private List<Address> addresses;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

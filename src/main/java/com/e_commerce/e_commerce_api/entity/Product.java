@@ -62,4 +62,7 @@ public class Product extends BaseEntity {
 
     @OneToMany(mappedBy = "product", fetch = FetchType.LAZY)
     private List<OrderProduct> orderProducts;
+
+    @OneToMany(mappedBy = "product", fetch = FetchType.LAZY)
+    private List<Favorite> favourites;
 }
