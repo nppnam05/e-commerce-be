@@ -19,7 +19,7 @@ public class ProductStockResponse {
     private Integer quantity;
     private String category;
     private String size;
-    private String color;
+    private String colorCode;
     private BigDecimal price;
     private List<String> imageUrls;
 }

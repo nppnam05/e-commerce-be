@@ -20,12 +20,6 @@ public class CreateProductRequest {
     @NotNull(message = "Category ID is required")
     private Long categoryId;
 
-    @NotNull(message = "Color ID is required")
-    private Long colorId;
-
-    @NotNull(message = "Size ID is required")
-    private Long sizeId;
-
     @NotNull(message = "Price is required")
     @Positive(message = "Price must be positive")
     private BigDecimal price;

@@ -21,7 +21,7 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "favourites", schema = "inventories")
+@Table(name = "favorites", schema = "inventories")
 public class Favorite extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -31,14 +31,14 @@ public class Favorite extends BaseEntity {
     @Column(name = "UserId", insertable = false, updatable = false)
     private Long userId;
 
-    @Column(name = "ProductId", insertable = false, updatable = false)
-    private Long productId;
+    @Column(name = "ProductChildrenId", insertable = false, updatable = false)
+    private Long productChildrenId;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "UserId")
     private User user;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "ProductId")
-    private Product product;
+    @JoinColumn(name = "ProductChildrenId")
+    private ProductChildren productChildren;
 }

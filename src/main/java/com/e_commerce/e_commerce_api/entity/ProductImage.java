@@ -19,13 +19,13 @@ public class ProductImage extends BaseEntity {
     @Column(name = "Id")
     private Long id;
 
-    @Column(name = "productId", insertable = false, updatable = false)
+    @Column(name = "ProductId", insertable = false, updatable = false)
     private Long productId;
 
-    @Column(length = 255, name = "url")
+    @Column(length = 255, name = "Url")
     private String url;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "productId")
+    @JoinColumn(name = "ProductId")
     private Product product;
 }

@@ -49,9 +49,6 @@ public interface CartRepository extends JpaRepository<Cart, Long> {
                 """, nativeQuery = true)
     List<CartWithProductProjection> findByUserId(@Param("userId") Long userId);
 
-    Optional<Cart> findByUserIdAndProductId(Long userId, Long productId);
-
-    void deleteAllByUserId(long userId);
 
     // @Query(value = """
     // SELECT

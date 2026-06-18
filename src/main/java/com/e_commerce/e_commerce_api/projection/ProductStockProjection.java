@@ -17,5 +17,5 @@ public interface ProductStockProjection {
 
     String getSize();
 
-    String getColor();
+    String getColorCode();
 }

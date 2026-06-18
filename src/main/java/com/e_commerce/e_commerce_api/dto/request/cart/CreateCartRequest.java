@@ -14,8 +14,8 @@ public class CreateCartRequest {
     @NotNull(message = "User ID is required")
     private Long userId;
 
-    @NotNull(message = "Product ID is required")
-    private Long productId;
+    @NotNull(message = "Product Children ID is required")
+    private Long productChildrenId;
 
     @NotNull(message = "Quantity is required")
     @Positive(message = "Quantity must be positive")

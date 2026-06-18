@@ -27,5 +27,5 @@ public class Size extends BaseEntity {
     private String description;
 
     @OneToMany(mappedBy = "size", fetch = FetchType.LAZY)
-    private List<Product> products;
+    private List<ProductChildren> productChildren;
 }

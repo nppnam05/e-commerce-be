@@ -106,12 +106,13 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
                 p."Id" AS "id", p."Name" AS "name",
                 op."SinglePrice" AS "price", op."Quantity" AS "quantity",
                 cat."Name" AS "category", s."Name" AS "size", c."ColorCode" AS "colorCode",
-                STRING_AGG(pi."url", ',') AS "imageUrls"
+                STRING_AGG(pi."Url", ',') AS "imageUrls"
             FROM "sales"."order_products" op
-            JOIN "inventories"."products" p ON op."ProductId" = p."Id"
-            LEFT JOIN "inventories"."product_images" pi ON p."Id" = pi."productId"
-            LEFT JOIN "inventories"."colors" c ON p."ColorId" = c."Id"
-            LEFT JOIN "inventories"."sizes" s ON p."SizeId" = s."Id"
+            LEFT JOIN "inventories"."product_children" pc ON op."ProductChildrenId" = pc."Id"
+            JOIN "inventories"."products" p ON pc."ProductId" = p."Id"
+            LEFT JOIN "inventories"."product_images" pi ON p."Id" = pi."ProductId"
+            LEFT JOIN "inventories"."colors" c ON pc."ColorId" = c."Id"
+            LEFT JOIN "inventories"."sizes" s ON pc."SizeId" = s."Id"
             LEFT JOIN "inventories"."categories" cat ON p."CategoryId" = cat."Id"
             WHERE op."OrderId" = :id
             GROUP BY p."Id", op."Id", cat."Id", s."Id", c."Id"

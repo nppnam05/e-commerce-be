@@ -1,7 +1,6 @@
 package com.e_commerce.e_commerce_api.repository;
 
 import java.util.List;
-import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -20,10 +19,11 @@ public interface FavoriteRepository extends JpaRepository<Favorite, Long> {
                     p."Id" as "productId",
                     p."Price" as "price",
                     p."Name" as "name",
-                    STRING_AGG(pi."url", ',') AS "imageUrls"
-            FROM "inventories"."favourites" f
-            INNER JOIN "inventories"."products" p ON f."ProductId" = p."Id"
-            LEFT JOIN "inventories"."product_images" pi ON p."Id" = pi."productId"
+                    STRING_AGG(pi."Url", ',') AS "imageUrls"
+            FROM "inventories"."favorites" f
+            LEFT JOIN "inventories"."product_children" pc ON f."ProductChildrenId" = pc."Id"
+            LEFT JOIN "inventories"."products" p ON pc."ProductId" = p."Id"
+            LEFT JOIN "inventories"."product_images" pi ON p."Id" = pi."ProductId"
             WHERE f."UserId" = :userId
             GROUP BY f."Id", p."Id", p."Price", p."Name"
             ORDER BY f."CreatedOn" DESC
@@ -35,6 +35,4 @@ public interface FavoriteRepository extends JpaRepository<Favorite, Long> {
 
     @Query("SELECT COUNT(f) FROM Favorite f WHERE f.userId = :userId")
     long countByUserId(Long userId);
-
-    Optional<List<Favorite>> findByProductId(Long productId);
 }
