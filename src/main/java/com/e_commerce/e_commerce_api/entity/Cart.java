@@ -23,8 +23,8 @@ public class Cart extends BaseEntity {
     @Column(name = "UserId", insertable = false, updatable = false)
     private Long userId;
 
-    @Column(name = "ProductId", insertable = false, updatable = false)
-    private Long productId;
+    @Column(name = "ProductChildrenId", insertable = false, updatable = false)
+    private Long productChildrenId;
 
     @Column(name = "Quantity")
     private Integer quantity;
@@ -37,6 +37,6 @@ public class Cart extends BaseEntity {
     private User user;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "ProductId", nullable = false)
-    private Product product;
+    @JoinColumn(name = "ProductChildrenId", nullable = false)
+    private ProductChildren productChildren;
 }

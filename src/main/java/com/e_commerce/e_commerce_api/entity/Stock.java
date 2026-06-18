@@ -19,13 +19,13 @@ public class Stock extends BaseEntity {
     @Column(name = "Id")
     private Long id;
 
-    @Column(name = "ProductId", insertable = false, updatable = false)
-    private Long productId;
+    @Column(name = "ProductChildrenId", insertable = false, updatable = false)
+    private Long productChildrenId;
 
     @Column(name = "Quantity")
     private Integer quantity;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "ProductId")
-    private Product product;
+    @JoinColumn(name = "ProductChildrenId")
+    private ProductChildren productChildren;
 }

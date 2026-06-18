@@ -23,7 +23,7 @@ public class FavoriteController {
             @PathVariable Long userId, @RequestParam(defaultValue = "1") int pageNumber,
             @RequestParam(defaultValue = "10") int pageSize) {
         return ResponseEntity.ok(ApiResponse.success(
-                favoriteService.getAllFavouritesByUserId(userId, pageNumber, pageSize),
+                favoriteService.getAllFavoritesByUserId(userId, pageNumber, pageSize),
                 "Get favorites successfully", 200));
     }
 

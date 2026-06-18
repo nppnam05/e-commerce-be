@@ -23,8 +23,8 @@ public class OrderProduct extends BaseEntity {
     @Column(name = "OrderId", insertable = false, updatable = false)
     private Long orderId;
 
-    @Column(name = "ProductId", insertable = false, updatable = false)
-    private Long productId;
+    @Column(name = "ProductChildrenId", insertable = false, updatable = false)
+    private Long productChildrenId;
 
     @Column(name = "Quantity")
     private Integer quantity;
@@ -37,6 +37,6 @@ public class OrderProduct extends BaseEntity {
     private Order order;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "ProductId", nullable = false)
-    private Product product;
+    @JoinColumn(name = "ProductChildrenId", nullable = false)
+    private ProductChildren productChildren;
 }

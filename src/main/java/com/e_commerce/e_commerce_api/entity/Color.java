@@ -26,6 +26,6 @@ public class Color extends BaseEntity {
     @Column(length = 200, name = "ColorCode")
     private String colorCode;
 
-    @OneToMany(mappedBy = "color", fetch = FetchType.LAZY)
-    private List<Product> products;
+    @OneToMany(mappedBy = "color")
+    private List<ProductChildren> productChildren;
 }

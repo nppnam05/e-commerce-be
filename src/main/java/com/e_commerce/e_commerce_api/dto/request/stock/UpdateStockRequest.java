@@ -11,7 +11,7 @@ import lombok.*;
 @AllArgsConstructor
 public class UpdateStockRequest {
     @NotNull(message = "Product ID is required")
-    private Long productId;
+    private Long id;
 
     @NotNull(message = "Quantity is required")
     @Min(value = 0, message = "Quantity cannot be negative")

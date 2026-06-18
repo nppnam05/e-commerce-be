@@ -16,7 +16,7 @@ import lombok.RequiredArgsConstructor;
 public class FavoriteService {
     private final FavoriteRepository favoriteRepository;
 
-    public PageResponse<List<FavoriteProductResponse>> getAllFavouritesByUserId(Long userId,
+    public PageResponse<List<FavoriteProductResponse>> getAllFavoritesByUserId(Long userId,
             int pageNumber, int pageSize) {
         int offset = (pageNumber - 1) * pageSize;
         List<FavoriteProductProjection> result =
