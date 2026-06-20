@@ -1,16 +1,13 @@
 package com.e_commerce.e_commerce_api.config.security;
 
-import java.io.IOException;
-
-import org.springframework.security.web.AuthenticationEntryPoint;
-import org.springframework.stereotype.Component;
-import org.springframework.security.core.AuthenticationException;
-
 import com.e_commerce.e_commerce_api.dto.response.base.ApiResponse;
 import com.fasterxml.jackson.databind.ObjectMapper;
-
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.web.AuthenticationEntryPoint;
+import org.springframework.stereotype.Component;
 
 @Component
 public class AuthEntryPoint implements AuthenticationEntryPoint {
@@ -27,5 +24,4 @@ public class AuthEntryPoint implements AuthenticationEntryPoint {
 
         new ObjectMapper().writeValue(response.getOutputStream(), body);
     }
-
 }

@@ -1,15 +1,12 @@
 package com.e_commerce.e_commerce_api.service;
 
-import java.util.List;
-
-import org.springframework.stereotype.Service;
-
 import com.e_commerce.e_commerce_api.dto.response.FavoriteProductResponse;
 import com.e_commerce.e_commerce_api.dto.response.base.PageResponse;
 import com.e_commerce.e_commerce_api.projection.FavoriteProductProjection;
 import com.e_commerce.e_commerce_api.repository.FavoriteRepository;
-
+import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor

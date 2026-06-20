@@ -1,7 +1,7 @@
 package com.e_commerce.e_commerce_api.dto.request.stock;
 
-import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
 @Getter

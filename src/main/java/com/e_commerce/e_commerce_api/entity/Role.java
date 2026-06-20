@@ -1,8 +1,7 @@
 package com.e_commerce.e_commerce_api.entity;
 
-import java.util.List;
-
 import jakarta.persistence.*;
+import java.util.List;
 import lombok.*;
 
 @Entity

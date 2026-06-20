@@ -1,86 +1,87 @@
 package com.e_commerce.e_commerce_api.repository;
 
+import com.e_commerce.e_commerce_api.entity.Cart;
+import com.e_commerce.e_commerce_api.projection.CartWithProductProjection;
 import java.util.List;
-import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
-import com.e_commerce.e_commerce_api.entity.Cart;
-import com.e_commerce.e_commerce_api.projection.CartWithProductProjection;
 
 @Repository
 public interface CartRepository extends JpaRepository<Cart, Long> {
+    @Query("""
+            SELECT c FROM Cart c
+            JOIN FETCH c.user u
+            JOIN FETCH c.productChildren pc
+            JOIN FETCH pc.product p
+            WHERE c.userId = :id
+            """)
+    List<Cart> findByUserIdWithDetail(@Param("id") Long id);
+
     @Query(value = """
             select
             	c."Id" as "id",
             	c."UserId" as "userId",
-            	c."ProductId" as "productId",
+            	c."ProductChildrenId" as "productChildrenId",
             	c."Quantity" as "quantity",
             	p."Price" as "singlePrice",
             	p."Name" as "productName",
             	size."Name" as "size",
             	color."Name" as "colorCode",
-            	image.imageurl as "imageUrls"
+            	image.imageUrl as "imageUrls"
             from
             	"sales".carts c
             left join
-            	"inventories".products p
+            	"inventories".product_children pc
             on
-            	c."ProductId" = p."Id"
+            	c."ProductChildrenId" = pc."Id"
+            left join
+                "inventories".products p
+            on
+                pc."ProductId" = p."Id"
             left join
             	"inventories".colors color
             on
-            	p."ColorId" = color."Id"
+            	pc."ColorId" = color."Id"
             left join
             	"inventories".sizes size
             on
-            	p."SizeId" = size."Id"
+            	pc."SizeId" = size."Id"
             left join (
-            	select t."productId",
-            	STRING_AGG(t.url, ', ') as imageUrl
+            	select t."ProductId",
+            	STRING_AGG(t."Url", ', ') as imageUrl
             	from "inventories".product_images t
             	group by
-            		t."productId"
+            		t."ProductId"
             ) image
-            on p."Id" = image."productId"
+            on p."Id" = image."ProductId"
             where
                 c."UserId" = :userId
                 """, nativeQuery = true)
     List<CartWithProductProjection> findByUserId(@Param("userId") Long userId);
 
-
-    // @Query(value = """
-    // SELECT
-    // (SELECT COUNT(*) FROM "identity"."users" WHERE "Status" = 'ACT') AS
-    // "totalUsers",
-    // (SELECT COUNT(*) FROM "sales"."orders" WHERE "Status" = 'PND') AS
-    // "totalPending",
-    // (SELECT COUNT(*) FROM "sales"."orders" WHERE "Status" = 'COM') AS
-    // "totalSales",
-    // (SELECT COUNT(*) FROM "sales"."orders") AS "totalOrders"
-    //
-    // """, nativeQuery = true)
-    // @Query(value = """
-    // SELECT * FROM "sales"."carts" c LEFT JOIN "inventories"."products" p
-    // """, nativeQuery = true)
     @Query(value = """
             select
             	c."Id" as "id",
             	c."UserId" as "userId",
-            	c."ProductId" as "productId",
             	c."Quantity" as "quantity",
+                c."ProductChildrenId" as "productChildrenId",
             	p."Price" as "singlePrice",
             	p."Name" as "productName",
             	size."Name" as "size",
             	color."Name" as "colorCode",
-            	image.imageurl as "imageUrls"
+            	image.imageUrl as "imageUrls"
             from
             	"sales".carts c
             left join
-            	"inventories".products p
+            	"inventories".product_children pc
             on
-            	c."ProductId" = p."Id"
+            	c."ProductChildrenId" = pc."Id"
+            left join
+                "inventories".products p
+            on
+                pc."ProductId" = p."Id"
             left join
             	"inventories".colors color
             on
@@ -90,13 +91,15 @@ public interface CartRepository extends JpaRepository<Cart, Long> {
             on
             	p."SizeId" = size."Id"
             left join (
-            	select t."productId",
+            	select t."ProductId",
             	STRING_AGG(t.url, ', ') as imageUrl
             	from "inventories".product_images t
             	group by
-            		t."productId"
+            		t."ProductId"
             ) image
-            on p."Id" = image."productId"
+            on p."Id" = image."ProductId"
                 """, nativeQuery = true)
     List<CartWithProductProjection> findAllWithProducts();
+
+    void deleteAllByUserId(Long userId);
 }

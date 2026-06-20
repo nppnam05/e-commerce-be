@@ -1,10 +1,8 @@
 package com.e_commerce.e_commerce_api.dto.response;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-
-import com.fasterxml.jackson.annotation.JsonInclude;
-
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;

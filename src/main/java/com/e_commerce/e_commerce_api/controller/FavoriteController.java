@@ -1,16 +1,13 @@
 package com.e_commerce.e_commerce_api.controller;
 
-import java.util.List;
-
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-
+import com.e_commerce.e_commerce_api.dto.response.FavoriteProductResponse;
 import com.e_commerce.e_commerce_api.dto.response.base.ApiResponse;
 import com.e_commerce.e_commerce_api.dto.response.base.PageResponse;
-import com.e_commerce.e_commerce_api.dto.response.FavoriteProductResponse;
 import com.e_commerce.e_commerce_api.service.FavoriteService;
-
+import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/favorite")

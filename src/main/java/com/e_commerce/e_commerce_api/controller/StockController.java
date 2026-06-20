@@ -1,17 +1,14 @@
 package com.e_commerce.e_commerce_api.controller;
 
-import java.util.List;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-
 import com.e_commerce.e_commerce_api.dto.request.stock.UpdateStockRequest;
 import com.e_commerce.e_commerce_api.dto.response.ProductStockResponse;
 import com.e_commerce.e_commerce_api.dto.response.base.ApiResponse;
 import com.e_commerce.e_commerce_api.dto.response.base.PageResponse;
 import com.e_commerce.e_commerce_api.service.StockService;
-
+import java.util.List;
 import lombok.RequiredArgsConstructor;
-
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/stock")
@@ -30,7 +27,6 @@ public class StockController {
                 ApiResponse.success(stockService.getAllProductsStock(keyword, pageNumber, pageSize),
                         "Get stocks successfully", 200));
     }
-
 
     @PutMapping
     public ResponseEntity<ApiResponse<Boolean>> updateStock(

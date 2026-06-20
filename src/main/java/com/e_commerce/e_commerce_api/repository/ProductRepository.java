@@ -1,16 +1,15 @@
 package com.e_commerce.e_commerce_api.repository;
 
+import com.e_commerce.e_commerce_api.entity.Product;
+import com.e_commerce.e_commerce_api.projection.ProductDetailProjection;
+import com.e_commerce.e_commerce_api.projection.ProductFilterProjection;
+import com.e_commerce.e_commerce_api.projection.ProductProjection;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
-
-import com.e_commerce.e_commerce_api.entity.Product;
-import com.e_commerce.e_commerce_api.projection.ProductDetailProjection;
-import com.e_commerce.e_commerce_api.projection.ProductFilterProjection;
-import com.e_commerce.e_commerce_api.projection.ProductProjection;
 
 @Repository
 public interface ProductRepository extends JpaRepository<Product, Long> {

@@ -1,7 +1,6 @@
 package com.e_commerce.e_commerce_api.utils;
 
 import com.e_commerce.e_commerce_api.exception.NotFoundException;
-
 import lombok.experimental.UtilityClass;
 
 @UtilityClass

@@ -1,15 +1,22 @@
 package com.e_commerce.e_commerce_api.repository;
 
+import com.e_commerce.e_commerce_api.entity.Stock;
+import com.e_commerce.e_commerce_api.projection.ProductStockProjection;
+import jakarta.persistence.LockModeType;
 import java.util.List;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
-import com.e_commerce.e_commerce_api.entity.Stock;
-import com.e_commerce.e_commerce_api.projection.ProductStockProjection;
 
 @Repository
 public interface StockRepository extends JpaRepository<Stock, Long> {
+
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("SELECT s FROM Stock s WHERE s.productChildren.id IN :productChildrenIds")
+    List<Stock> findStocksByProductChildrenIdsForUpdate(
+            @Param("productChildrenIds") List<Long> productChildrenIds);
 
     @Query(value = """
             SELECT s."Id" AS "id",
@@ -41,5 +48,4 @@ public interface StockRepository extends JpaRepository<Stock, Long> {
 
     @Query("SELECT COUNT(s.id) FROM Stock s WHERE s.status = 'ACT' AND LOWER(s.productChildren.product.name) LIKE LOWER(CONCAT('%', :keyword, '%'))")
     long countStocks(@Param("keyword") String keyword);
-
 }

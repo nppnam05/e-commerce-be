@@ -1,9 +1,18 @@
 package com.e_commerce.e_commerce_api.config.security;
 
+import com.e_commerce.e_commerce_api.constant.NameTypeToken;
+import com.e_commerce.e_commerce_api.constant.StatusEntity;
+import com.e_commerce.e_commerce_api.constant.TypeJwt;
+import com.e_commerce.e_commerce_api.entity.UserSession;
+import com.e_commerce.e_commerce_api.repository.UserSessionRepository;
+import com.e_commerce.e_commerce_api.service.JwtService;
+import com.e_commerce.e_commerce_api.utils.CookieUtils;
+import com.e_commerce.e_commerce_api.utils.DateTimeUtils;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.lang.NonNull;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -13,17 +22,6 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
-
-import com.e_commerce.e_commerce_api.constant.NameTypeToken;
-import com.e_commerce.e_commerce_api.constant.StatusEntity;
-import com.e_commerce.e_commerce_api.constant.TypeJwt;
-import com.e_commerce.e_commerce_api.entity.UserSession;
-import com.e_commerce.e_commerce_api.repository.UserSessionRepository;
-import com.e_commerce.e_commerce_api.service.JwtService;
-import com.e_commerce.e_commerce_api.utils.CookieUtils;
-import com.e_commerce.e_commerce_api.utils.DateTimeUtils;
-
-import java.io.IOException;
 
 @Component
 @RequiredArgsConstructor
@@ -95,7 +93,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     protected boolean shouldNotFilter(HttpServletRequest request) {
         String path = request.getServletPath();
         return path.startsWith("/auth/") || path.startsWith("/login/oauth2/")
-                || path.startsWith("/v3/api-docs") || path.startsWith("/swagger-ui")
-                || path.startsWith("/swagger-resources") || path.startsWith("/webjars");
+                || path.equals("/payment/webhook") || path.startsWith("/v3/api-docs")
+                || path.startsWith("/swagger-ui") || path.startsWith("/swagger-resources")
+                || path.startsWith("/webjars");
     }
 }
