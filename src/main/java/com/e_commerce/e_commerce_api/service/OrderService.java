@@ -1,45 +1,43 @@
 package com.e_commerce.e_commerce_api.service;
 
-import java.math.BigDecimal;
-import java.time.LocalDate;
-import java.util.Collections;
-import java.util.List;
-import java.util.UUID;
-import java.util.stream.Collectors;
-
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
+import com.e_commerce.e_commerce_api.constant.PaymentStatus;
 import com.e_commerce.e_commerce_api.dto.request.order.CreateOrderRequest;
 import com.e_commerce.e_commerce_api.dto.response.MonthlyRevenueResponse;
 import com.e_commerce.e_commerce_api.dto.response.OrderDetailResponse;
 import com.e_commerce.e_commerce_api.dto.response.OrderResponse;
 import com.e_commerce.e_commerce_api.dto.response.OrderUserResponse;
 import com.e_commerce.e_commerce_api.dto.response.ProductOrderResponse;
-import com.e_commerce.e_commerce_api.dto.response.ProductResponse;
 import com.e_commerce.e_commerce_api.dto.response.base.PageResponse;
+import com.e_commerce.e_commerce_api.entity.Cart;
+import com.e_commerce.e_commerce_api.entity.Order;
+import com.e_commerce.e_commerce_api.entity.OrderProduct;
+import com.e_commerce.e_commerce_api.entity.Stock;
+import com.e_commerce.e_commerce_api.exception.BadRequestException;
+import com.e_commerce.e_commerce_api.exception.NotFoundException;
 import com.e_commerce.e_commerce_api.mapper.OrderMapper;
-import com.e_commerce.e_commerce_api.projection.CartWithProductProjection;
-import com.e_commerce.e_commerce_api.projection.MonthlyRevenueProjection;
 import com.e_commerce.e_commerce_api.repository.AddressRepository;
 import com.e_commerce.e_commerce_api.repository.CartRepository;
-import com.e_commerce.e_commerce_api.repository.OrderProductRepository;
 import com.e_commerce.e_commerce_api.repository.OrderRepository;
-import com.e_commerce.e_commerce_api.repository.ProductRepository;
-import com.e_commerce.e_commerce_api.repository.UserRepository;
+import com.e_commerce.e_commerce_api.repository.StockRepository;
 import com.e_commerce.e_commerce_api.utils.ExceptionGenerator;
-
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
 public class OrderService {
     private final OrderRepository orderRepository;
-    private final ProductRepository productRepository;
     private final CartRepository cartRepository;
-    private final UserRepository userRepository;
     private final AddressRepository addressRepository;
     private final OrderMapper orderMapper;
+    private final StockRepository stockRepository;
 
     public boolean updateOrderStatus(Long id, String status) {
         var order = orderRepository.findById(id)
@@ -90,50 +88,59 @@ public class OrderService {
         return result;
     }
 
-    // @Transactional
-    // public OrderResponse createOrder(CreateOrderRequest request) {
-    //     List<CartWithProductProjection> carts = cartRepository.findByUserId(request.getUserId());
-    //     if (carts.isEmpty())
-    //         throw new NotFoundException("User don't have any item on cart");
+    @Transactional
+    public OrderResponse createOrder(CreateOrderRequest request) {
+        List<Cart> carts = cartRepository.findByUserIdWithDetail(request.getUserId());
 
-    //     BigDecimal totalPrice = carts.stream().map(cart -> {
-    //         return cart.getSinglePrice().multiply(BigDecimal.valueOf(cart.getQuantity()));
-    //     }).reduce(BigDecimal.ZERO, BigDecimal::add);
-    //     Integer totalQuantity = carts.stream().mapToInt(CartWithProductProjection::getQuantity).sum();
-    //     User user = userRepository.findById(request.getUserId())
-    //             .orElseThrow(() -> ExceptionGenerator.handleNotFoundUser(request.getUserId()));
-    //     Address address = addressRepository.findById(request.getAddressId())
-    //             .orElseThrow(() -> ExceptionGenerator.handleNotFoundAddress(request.getAddressId()));
+        if (carts.isEmpty()) {
+            throw new NotFoundException("User don't have any item on cart");
+        }
 
-    //     String code = String.format("#CR%s", UUID.randomUUID().toString());
+        var totalPrice = carts.stream()
+                .map(cart -> cart.getSinglePrice().multiply(BigDecimal.valueOf(cart.getQuantity())))
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
 
-    //     Order order = Order.builder()
-    //             .user(user)
-    //             .address(address)
-    //             .code(code)
-    //             .totalQuantity(totalQuantity)
-    //             .totalPrice(totalPrice)
-    //             .build();
+        var totalQuantity = carts.stream().mapToInt(Cart::getQuantity).sum();
+        var user = carts.stream().findFirst().get().getUser();
+        var address = addressRepository.findById(request.getAddressId()).orElseThrow(
+                () -> ExceptionGenerator.handleNotFoundAddress(request.getAddressId()));
 
-    //     Order saveOrder = orderRepository.save(order);
+        String code =
+                "#OR" + UUID.randomUUID().toString().replace("-", "").substring(0, 8).toUpperCase();
 
-    //     List<OrderProduct> orderProducts = carts.stream().map(cart -> {
-    //         Product product = productRepository.findById(cart.getProductId())
-    //                 .orElseThrow(() -> ExceptionGenerator.handleNotFoundProduct(cart.getProductId()));
+        var order = Order.builder().user(user).address(address).code(code)
+                .status(PaymentStatus.PND.name()).paymentStatus(PaymentStatus.PND.name())
+                .totalQuantity(totalQuantity).totalPrice(totalPrice).build();
 
-    //         return OrderProduct.builder()
-    //                 .quantity(cart.getQuantity())
-    //                 .singlePrice(cart.getSinglePrice())
-    //                 .order(saveOrder)
-    //                 .product(product).build();
-    //     }).collect(Collectors.toList());
+        Order saveOrder = orderRepository.save(order);
 
-    //     saveOrder.setOrderProducts(orderProducts);
-    //     orderRepository.save(saveOrder);
-    //     cartRepository.deleteAllByUserId(user.getId());
+        var productChildrenIds = carts.stream().map(Cart::getProductChildrenId).toList();
+        Map<Long, Stock> stocks =
+                stockRepository.findStocksByProductChildrenIdsForUpdate(productChildrenIds).stream()
+                        .collect(Collectors.toMap(Stock::getProductChildrenId, s -> s));
 
-    //     return orderMapper.toResponse(order, address, user);
-    // }
+        List<OrderProduct> orderProducts = carts.stream().map(cart -> {
+            var stock = stocks.get(cart.getProductChildrenId());
+            if (stock == null) {
+                throw new NotFoundException(
+                        "Stock not found for product: " + cart.getProductChildrenId());
+            }
+            if (stock.getQuantity() < cart.getQuantity()) {
+                throw new BadRequestException("Stock is not enough");
+            }
+            stock.setQuantity(stock.getQuantity() - cart.getQuantity());
+            stockRepository.save(stock);
+            return OrderProduct.builder().quantity(cart.getQuantity())
+                    .singlePrice(cart.getSinglePrice()).order(saveOrder)
+                    .productChildren(cart.getProductChildren()).build();
+        }).collect(Collectors.toList());
+
+        saveOrder.setOrderProducts(orderProducts);
+        orderRepository.save(saveOrder);
+        cartRepository.deleteAllByUserId(user.getId());
+
+        return orderMapper.toResponse(order, address, user);
+    }
 
     public OrderDetailResponse getOrderDetail(Long id) {
         var order = orderRepository.findOrderDetailById(id)

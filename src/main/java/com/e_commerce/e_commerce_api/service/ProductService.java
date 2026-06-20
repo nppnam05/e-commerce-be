@@ -1,9 +1,5 @@
 package com.e_commerce.e_commerce_api.service;
 
-import java.util.List;
-
-import org.springframework.stereotype.Service;
-
 import com.e_commerce.e_commerce_api.dto.request.product.CreateProductRequest;
 import com.e_commerce.e_commerce_api.dto.request.product.UpdateProductRequest;
 import com.e_commerce.e_commerce_api.dto.response.ProductDetailResponse;
@@ -17,9 +13,10 @@ import com.e_commerce.e_commerce_api.projection.ProductProjection;
 import com.e_commerce.e_commerce_api.repository.CategoryRepository;
 import com.e_commerce.e_commerce_api.repository.ProductImageRepository;
 import com.e_commerce.e_commerce_api.repository.ProductRepository;
-
 import jakarta.transaction.Transactional;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor

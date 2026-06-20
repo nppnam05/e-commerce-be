@@ -1,7 +1,7 @@
 package com.e_commerce.e_commerce_api.entity;
 
-import java.math.BigDecimal;
 import jakarta.persistence.*;
+import java.math.BigDecimal;
 import lombok.*;
 
 @Entity

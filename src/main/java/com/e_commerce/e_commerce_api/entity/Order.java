@@ -1,13 +1,14 @@
 package com.e_commerce.e_commerce_api.entity;
 
+import jakarta.persistence.*;
 import java.math.BigDecimal;
 import java.util.List;
-import jakarta.persistence.*;
 import lombok.*;
+import lombok.experimental.SuperBuilder;
 
 @Entity
 @Table(name = "orders", schema = "sales")
-@Builder
+@SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
@@ -35,6 +36,12 @@ public class Order extends BaseEntity {
 
     @Column(name = "TotalPrice")
     private BigDecimal totalPrice;
+
+    @Column(name = "PaymentStatus", length = 10)
+    private String paymentStatus;
+
+    @Column(name = "PaymentLinkId", length = 255)
+    private String paymentLinkId;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "UserId", nullable = false)

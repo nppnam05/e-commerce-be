@@ -1,12 +1,10 @@
 package com.e_commerce.e_commerce_api.service;
 
-import org.springframework.stereotype.Service;
-
 import com.e_commerce.e_commerce_api.dto.response.DashboardTotal;
 import com.e_commerce.e_commerce_api.projection.TotalProjection;
 import com.e_commerce.e_commerce_api.repository.UserRepository;
-
 import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor

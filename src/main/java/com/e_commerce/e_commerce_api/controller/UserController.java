@@ -1,22 +1,19 @@
 package com.e_commerce.e_commerce_api.controller;
 
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-
 import com.e_commerce.e_commerce_api.dto.request.user.UpdateUserRequest;
 import com.e_commerce.e_commerce_api.dto.response.UserResponse;
 import com.e_commerce.e_commerce_api.dto.response.base.ApiResponse;
 import com.e_commerce.e_commerce_api.service.JwtService;
 import com.e_commerce.e_commerce_api.service.UserService;
-
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
-
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("user")

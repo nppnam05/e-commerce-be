@@ -1,11 +1,12 @@
 package com.e_commerce.e_commerce_api.repository;
 
+import com.e_commerce.e_commerce_api.entity.ProductChildren;
+import com.e_commerce.e_commerce_api.projection.ProductChildrenProjection;
 import java.util.List;
+import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
-import com.e_commerce.e_commerce_api.entity.ProductChildren;
-import com.e_commerce.e_commerce_api.projection.ProductChildrenProjection;
 
 public interface ProductChildrenRepository extends JpaRepository<ProductChildren, Long> {
     @Query(value = """
@@ -43,4 +44,14 @@ public interface ProductChildrenRepository extends JpaRepository<ProductChildren
             + "AND (:productId IS NULL OR pc.product.id = :productId)")
     long countProductChildren(@Param("keyword") String keyword,
             @Param("productId") Integer productId);
+
+    @Query("""
+            SELECT DISTINCT pc FROM ProductChildren pc
+            JOIN FETCH pc.product p
+            JOIN FETCH pc.size
+            JOIN FETCH pc.color
+            LEFT JOIN FETCH p.productImages
+            WHERE pc.id = :id
+            """)
+    Optional<ProductChildren> findByIdWithDetails(@Param("id") Long id);
 }

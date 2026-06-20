@@ -1,13 +1,12 @@
 package com.e_commerce.e_commerce_api.repository;
 
+import com.e_commerce.e_commerce_api.entity.User;
+import com.e_commerce.e_commerce_api.projection.TotalProjection;
 import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
-
-import com.e_commerce.e_commerce_api.entity.User;
-import com.e_commerce.e_commerce_api.projection.TotalProjection;
 
 @Repository
 public interface UserRepository extends JpaRepository<User, Long> {

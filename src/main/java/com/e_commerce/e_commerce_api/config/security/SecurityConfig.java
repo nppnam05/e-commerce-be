@@ -1,7 +1,7 @@
 package com.e_commerce.e_commerce_api.config.security;
 
 import java.util.List;
-
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -12,8 +12,6 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
-
-import lombok.RequiredArgsConstructor;
 
 @Configuration
 @RequiredArgsConstructor
@@ -32,13 +30,14 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .sessionManagement(
                         session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // JWT
-                                                                                                   // không
-                                                                                                   // dùng
-                                                                                                   // session
+                // không
+                // dùng
+                // session
 
                 .authorizeHttpRequests(auth -> auth.requestMatchers("/auth/**").permitAll() // public
-                                                                                            // endpoints
+                        // endpoints
                         .requestMatchers("/login/oauth2/**").permitAll()
+                        .requestMatchers("/payment/webhook").permitAll()
                         // TODO: Lưu ý, sau chỉ triển khai cái này trên môi trường Local
                         .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html",
                                 "/swagger-resources/**", "/webjars/**")

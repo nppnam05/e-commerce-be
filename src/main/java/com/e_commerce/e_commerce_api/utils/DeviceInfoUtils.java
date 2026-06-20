@@ -1,11 +1,10 @@
 package com.e_commerce.e_commerce_api.utils;
 
+import java.util.HashMap;
+import java.util.Map;
 import lombok.experimental.UtilityClass;
 import nl.basjes.parse.useragent.UserAgent;
 import nl.basjes.parse.useragent.UserAgentAnalyzer;
-
-import java.util.HashMap;
-import java.util.Map;
 
 @UtilityClass
 public class DeviceInfoUtils {

@@ -1,16 +1,14 @@
 package com.e_commerce.e_commerce_api.config.audit;
 
+import com.e_commerce.e_commerce_api.constant.SystemEntity;
+import java.util.Optional;
 import org.springframework.data.domain.AuditorAware;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.stereotype.Component;
-
-import com.e_commerce.e_commerce_api.constant.SystemEntity;
-
-import java.util.Optional;
 import org.springframework.security.oauth2.core.user.OAuth2User;
+import org.springframework.stereotype.Component;
 
 @Component
 public class ApplicationAuditAware implements AuditorAware<String> {

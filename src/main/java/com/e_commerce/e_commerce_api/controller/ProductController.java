@@ -1,10 +1,5 @@
 package com.e_commerce.e_commerce_api.controller;
 
-import java.util.List;
-
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-
 import com.e_commerce.e_commerce_api.dto.request.product.CreateProductRequest;
 import com.e_commerce.e_commerce_api.dto.request.product.UpdateProductRequest;
 import com.e_commerce.e_commerce_api.dto.response.ProductDetailResponse;
@@ -13,8 +8,10 @@ import com.e_commerce.e_commerce_api.dto.response.base.ApiResponse;
 import com.e_commerce.e_commerce_api.dto.response.base.PageResponse;
 import com.e_commerce.e_commerce_api.projection.ProductFilterProjection;
 import com.e_commerce.e_commerce_api.service.ProductService;
-
+import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/product")
@@ -40,7 +37,8 @@ public class ProductController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ApiResponse<ProductDetailResponse>> getProductById(@PathVariable Long id) {
+    public ResponseEntity<ApiResponse<ProductDetailResponse>> getProductById(
+            @PathVariable Long id) {
         return ResponseEntity.ok(ApiResponse.success(productService.getProductById(id),
                 "Get product successfully", 200));
     }

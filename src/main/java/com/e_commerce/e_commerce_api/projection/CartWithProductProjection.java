@@ -2,15 +2,13 @@ package com.e_commerce.e_commerce_api.projection;
 
 import java.math.BigDecimal;
 
-/**
- * CartWithProductProjection
- */
+/** CartWithProductProjection */
 public interface CartWithProductProjection {
     public Long getId();
 
-    public long getUserId(); 
+    public long getUserId();
 
-    public Long getProductId();
+    public Long getProductChildrenId();
 
     public Integer getQuantity();
 

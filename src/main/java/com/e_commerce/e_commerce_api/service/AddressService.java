@@ -1,9 +1,5 @@
 package com.e_commerce.e_commerce_api.service;
 
-import java.util.List;
-
-import org.springframework.stereotype.Service;
-
 import com.e_commerce.e_commerce_api.dto.request.address.CreateAddressRequest;
 import com.e_commerce.e_commerce_api.dto.request.address.UpdateAddressRequest;
 import com.e_commerce.e_commerce_api.dto.response.base.PageResponse;
@@ -11,8 +7,9 @@ import com.e_commerce.e_commerce_api.entity.Address;
 import com.e_commerce.e_commerce_api.projection.AddressUserProjection;
 import com.e_commerce.e_commerce_api.repository.AddressRepository;
 import com.e_commerce.e_commerce_api.repository.UserRepository;
-
+import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor

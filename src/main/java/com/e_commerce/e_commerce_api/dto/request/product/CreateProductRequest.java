@@ -1,15 +1,12 @@
 package com.e_commerce.e_commerce_api.dto.request.product;
 
-import java.math.BigDecimal;
-
-import org.springframework.web.multipart.MultipartFile;
-
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
-import lombok.*;
-
+import java.math.BigDecimal;
 import java.util.List;
+import lombok.*;
+import org.springframework.web.multipart.MultipartFile;
 
 @Getter
 @Setter

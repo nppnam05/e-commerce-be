@@ -1,14 +1,12 @@
 package com.e_commerce.e_commerce_api.entity;
 
+import jakarta.persistence.*;
 import java.util.Collection;
 import java.util.List;
-
+import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
-
-import jakarta.persistence.*;
-import lombok.*;
 
 @Entity
 @Table(name = "users", schema = "identity")

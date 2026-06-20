@@ -1,7 +1,6 @@
 package com.e_commerce.e_commerce_api.dto.response.base;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;

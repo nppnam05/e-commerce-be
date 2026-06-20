@@ -1,6 +1,5 @@
 package com.e_commerce.e_commerce_api.dto.request.cart;
 
-import java.math.BigDecimal;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import lombok.*;
@@ -15,8 +14,4 @@ public class UpdateCartRequest {
     @NotNull(message = "Quantity is required")
     @Positive(message = "Quantity must be positive")
     private Integer quantity;
-
-    @NotNull(message = "Single price is required")
-    @Positive(message = "Single price must be positive")
-    private BigDecimal singlePrice;
 }

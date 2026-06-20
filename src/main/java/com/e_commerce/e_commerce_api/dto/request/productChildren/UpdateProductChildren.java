@@ -15,8 +15,10 @@ import lombok.Setter;
 public class UpdateProductChildren {
     @NotNull(message = "Product Children ID is required")
     private Long id;
+
     @NotNull(message = "Size ID is required")
     private Long sizeId;
+
     @NotNull(message = "Color ID is required")
     private Long colorId;
 }

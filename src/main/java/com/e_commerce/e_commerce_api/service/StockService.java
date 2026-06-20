@@ -1,13 +1,12 @@
 package com.e_commerce.e_commerce_api.service;
 
-import java.util.List;
-import org.springframework.stereotype.Service;
 import com.e_commerce.e_commerce_api.dto.request.stock.UpdateStockRequest;
 import com.e_commerce.e_commerce_api.dto.response.ProductStockResponse;
 import com.e_commerce.e_commerce_api.dto.response.base.PageResponse;
 import com.e_commerce.e_commerce_api.repository.StockRepository;
-
+import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor

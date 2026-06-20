@@ -1,14 +1,5 @@
 package com.e_commerce.e_commerce_api.config.security;
 
-import java.io.IOException;
-import java.util.UUID;
-
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.oauth2.core.user.OAuth2User;
-import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
-import org.springframework.stereotype.Component;
-
 import com.e_commerce.e_commerce_api.constant.NameTypeToken;
 import com.e_commerce.e_commerce_api.constant.StatusEntity;
 import com.e_commerce.e_commerce_api.constant.TypeJwt;
@@ -23,12 +14,18 @@ import com.e_commerce.e_commerce_api.utils.ClientInfo;
 import com.e_commerce.e_commerce_api.utils.CookieUtils;
 import com.e_commerce.e_commerce_api.utils.DateTimeUtils;
 import com.e_commerce.e_commerce_api.utils.DeviceInfoUtils;
-
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.transaction.Transactional;
+import java.io.IOException;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.oauth2.core.user.OAuth2User;
+import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
+import org.springframework.stereotype.Component;
 
 @Component
 @RequiredArgsConstructor
@@ -83,7 +80,6 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
                         old.setRevokedOn(DateTimeUtils.toDateTimeNow());
                         userSessionRepository.save(old);
                     });
-
         }
 
         // 2. Tạo token và lưu Cookie

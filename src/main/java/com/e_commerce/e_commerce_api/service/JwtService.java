@@ -1,24 +1,21 @@
 package com.e_commerce.e_commerce_api.service;
 
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.security.Keys;
-import jakarta.servlet.http.HttpServletRequest;
-
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.stereotype.Service;
-
 import com.e_commerce.e_commerce_api.constant.NameTypeToken;
 import com.e_commerce.e_commerce_api.constant.TypeJwt;
 import com.e_commerce.e_commerce_api.entity.User;
 import com.e_commerce.e_commerce_api.exception.UnauthorizedException;
 import com.e_commerce.e_commerce_api.utils.CookieUtils;
 import com.e_commerce.e_commerce_api.utils.DateTimeUtils;
-
-import javax.crypto.SecretKey;
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.security.Keys;
+import jakarta.servlet.http.HttpServletRequest;
 import java.nio.charset.StandardCharsets;
 import java.util.function.Function;
+import javax.crypto.SecretKey;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.stereotype.Service;
 
 @Service
 public class JwtService {
