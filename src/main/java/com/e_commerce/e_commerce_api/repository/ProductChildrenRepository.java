@@ -2,6 +2,7 @@ package com.e_commerce.e_commerce_api.repository;
 
 import com.e_commerce.e_commerce_api.entity.ProductChildren;
 import com.e_commerce.e_commerce_api.projection.ProductChildrenProjection;
+import com.e_commerce.e_commerce_api.projection.ProductChildrenQuantityProjection;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -38,6 +39,24 @@ public interface ProductChildrenRepository extends JpaRepository<ProductChildren
     List<ProductChildrenProjection> findAllProductChildren(@Param("keyword") String keyword,
             @Param("pageSize") int pageSize, @Param("offset") int offset,
             @Param("productId") Integer productId);
+
+    @Query(value = """
+            SELECT
+            pc."Id" AS "id",
+            s."Quantity" AS "quantity"
+            FROM "inventories"."product_children" pc
+            LEFT JOIN "inventories"."stocks" s ON s."ProductChildrenId" = pc."Id"
+            LEFT JOIN "inventories"."products" p ON pc."ProductId" = p."Id"
+            LEFT JOIN "inventories"."colors" c ON pc."ColorId" = c."Id"
+            LEFT JOIN "inventories"."sizes" sz ON pc."SizeId" = sz."Id"
+            WHERE
+            pc."Status" = 'ACT'
+            AND p."Id" = :productId
+            AND c."Id" = :colorId
+            AND sz."Id" = :sizeId
+            """, nativeQuery = true)
+    Optional<ProductChildrenQuantityProjection> getProductChildrenQuantity(@Param("productId") Long productId,
+            @Param("colorId") Long colorId, @Param("sizeId") Long sizeId);
 
     @Query("SELECT COUNT(pc.id) FROM ProductChildren pc WHERE pc.status = 'ACT' "
             + "AND LOWER(pc.product.name) LIKE LOWER(CONCAT('%', :keyword, '%')) "

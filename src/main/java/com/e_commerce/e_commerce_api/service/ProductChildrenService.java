@@ -3,6 +3,7 @@ package com.e_commerce.e_commerce_api.service;
 import com.e_commerce.e_commerce_api.dto.request.productChildren.UpdateProductChildren;
 import com.e_commerce.e_commerce_api.dto.response.ProductChildrenResponse;
 import com.e_commerce.e_commerce_api.dto.response.base.PageResponse;
+import com.e_commerce.e_commerce_api.projection.ProductChildrenQuantityProjection;
 import com.e_commerce.e_commerce_api.repository.ColorRepository;
 import com.e_commerce.e_commerce_api.repository.ProductChildrenRepository;
 import com.e_commerce.e_commerce_api.repository.SizeRepository;
@@ -33,6 +34,13 @@ public class ProductChildrenService {
                         r.getImageUrls() != null ? List.of(r.getImageUrls().split(",")) : List.of())
                 .build()).toList();
         return PageResponse.mapToPageResponse(data, pageNumber, pageSize, total);
+    }
+
+    public ProductChildrenQuantityProjection getProductChildrenQuantity(Long productId, Long colorId, Long sizeId) {
+        var result =
+                productChildrenRepository.getProductChildrenQuantity(productId, colorId, sizeId)
+                        .orElseThrow(() -> new RuntimeException("Product children not found"));
+        return result;
     }
 
     public Boolean updateProductChildren(UpdateProductChildren request) {

@@ -7,6 +7,7 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -21,5 +22,13 @@ public class ColorController {
     public ResponseEntity<ApiResponse<List<ColorResponse>>> getAllColors() {
         return ResponseEntity.ok(ApiResponse.success(colorService.getAllColors(),
                 "Get all colors successfully", 200));
+    }
+
+    @GetMapping("/product/{productId}")
+    public ResponseEntity<ApiResponse<List<ColorResponse>>> getColorsWithStockByProductId(
+            @PathVariable Long productId) {
+        return ResponseEntity
+                .ok(ApiResponse.success(colorService.getColorsWithStockByProductId(productId),
+                        "Get colors by product ID successfully", 200));
     }
 }

@@ -4,6 +4,7 @@ import com.e_commerce.e_commerce_api.dto.request.productChildren.UpdateProductCh
 import com.e_commerce.e_commerce_api.dto.response.ProductChildrenResponse;
 import com.e_commerce.e_commerce_api.dto.response.base.ApiResponse;
 import com.e_commerce.e_commerce_api.dto.response.base.PageResponse;
+import com.e_commerce.e_commerce_api.projection.ProductChildrenQuantityProjection;
 import com.e_commerce.e_commerce_api.service.ProductChildrenService;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -25,6 +26,16 @@ public class ProductChildrenController {
             @RequestParam(defaultValue = "10") int pageSize) {
         return ResponseEntity.ok(ApiResponse.success(productChildrenService
                 .getAllProductChildren(keyword, pageNumber, pageSize, productId),
+                "Get product children successfully", 200));
+    }
+
+    @GetMapping("/quantity")
+    public ResponseEntity<ApiResponse<ProductChildrenQuantityProjection>> getProductChildrenQuantity(
+            @RequestParam(required = false) Long productId,
+            @RequestParam(required = false) Long colorId,
+            @RequestParam(required = false) Long sizeId) {
+        return ResponseEntity.ok(ApiResponse.success(
+                productChildrenService.getProductChildrenQuantity(productId, colorId, sizeId),
                 "Get product children successfully", 200));
     }
 

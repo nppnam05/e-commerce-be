@@ -63,7 +63,5 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
             """, nativeQuery = true)
     List<ProductFilterProjection> findProductFilters();
 
-    List<Product> findByCategoryId(Long categoryId);
-
-    boolean existsByName(String name);
+    
 }

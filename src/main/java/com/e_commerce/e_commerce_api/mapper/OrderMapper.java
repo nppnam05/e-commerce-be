@@ -12,7 +12,7 @@ public interface OrderMapper {
     Order toEntity(CreateOrderRequest request);
 
     default OrderResponse toResponse(Order order, Address address, User user) {
-        OrderResponse orderResponse = OrderResponse.builder()
+        OrderResponse orderResponse = OrderResponse.builder().id(order.getId())
                 .address(String.format("%s, %s, %s, %s", address.getStreet(), address.getWard(),
                         address.getDistrict(), address.getCity()))
                 .status(order.getStatus()).customerName(user.getUsername()).code(order.getCode())
