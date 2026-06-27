@@ -64,6 +64,10 @@ public class PaymentService {
         Order order = orderRepository.findByIdWithOrderProducts(orderId)
                 .orElseThrow(() -> new NotFoundException("Order not found"));
 
+        if (PaymentStatus.PAID.name().equals(order.getPaymentStatus())) {
+            return;
+        }
+
         if ("00".equals(data.getCode())) {
             var productChildrenIds = order.getOrderProducts().stream()
                     .map(op -> op.getProductChildren().getId()).toList();
