@@ -126,4 +126,12 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
                                         """,
             nativeQuery = true)
     long countOrders(@Param("dateTime") LocalDate dateTime, @Param("status") String status);
+
+    @Query("""
+            SELECT o FROM Order o
+            JOIN FETCH o.orderProducts op
+            JOIN FETCH op.productChildren
+            WHERE o.id = :id
+            """)
+    Optional<Order> findByIdWithOrderProducts(@Param("id") Long id);
 }

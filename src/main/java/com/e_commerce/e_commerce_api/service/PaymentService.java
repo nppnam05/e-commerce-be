@@ -61,7 +61,7 @@ public class PaymentService {
         var data = payOS.webhooks().verify(webhook);
 
         Long orderId = data.getOrderCode();
-        Order order = orderRepository.findById(orderId)
+        Order order = orderRepository.findByIdWithOrderProducts(orderId)
                 .orElseThrow(() -> new NotFoundException("Order not found"));
 
         if ("00".equals(data.getCode())) {
