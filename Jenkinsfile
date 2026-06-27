@@ -4,7 +4,7 @@ pipeline {
     environment {
         IMAGE_NAME = 'e-commerce-api'
         CONTAINER_NAME = 'e-commerce-api'
-        APP_PORT = '8081'
+        APP_PORT = '80'
         CONTAINER_PORT = '8080'
         NETWORK = 'app_app-network'
     }
