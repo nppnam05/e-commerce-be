@@ -38,11 +38,19 @@ public class SecurityConfig {
                         // endpoints
                         .requestMatchers("/login/oauth2/**").permitAll()
                         .requestMatchers("/payment/webhook").permitAll()
+                        .requestMatchers("GET", "/product").permitAll()
+                        .requestMatchers("GET", "/product/{id}").permitAll()
+                        .requestMatchers("GET", "/product/filters").permitAll()
                         // TODO: Lưu ý, sau chỉ triển khai cái này trên môi trường Local
                         .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html",
-                                "/swagger-resources/**", "/webjars/**")
-                        .permitAll().requestMatchers("/admin/**").hasRole("ADMIN").anyRequest()
-                        .authenticated()) // còn lại phải có JWT
+                                "/swagger-resources/**", "/webjars/**").permitAll()
+
+                        .requestMatchers("/admin/**").hasRole("ADMIN")
+                        .requestMatchers("POST", "/product").hasRole("ADMIN")
+                        .requestMatchers("PUT", "/product/**").hasRole("ADMIN")
+                        .requestMatchers("DELETE", "/product/**").hasRole("ADMIN")
+                        
+                        .anyRequest().authenticated()) // còn lại phải có JWT
                 .oauth2Login(oauth2 -> oauth2.successHandler(oauth2SuccessHandler))
                 .exceptionHandling(ex -> ex.authenticationEntryPoint(authEntryPoint) // ← 401
                         .accessDeniedHandler(accessDeniedHandler))
